@@ -1,0 +1,68 @@
+{
+  "name": "@descope/mcp-express",
+  "version": "0.0.1",
+  "description": "Descope Express MCP SDK",
+  "type": "module",
+  "types": "./dist/esm/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./*.mjs": {
+      "types": "./dist/esm/*.d.ts",
+      "default": "./dist/esm/*.js"
+    },
+    "./*.js": {
+      "types": "./dist/cjs/*.d.ts",
+      "default": "./dist/cjs/*.js"
+    },
+    "./*": {
+      "types": "./dist/esm/*.d.ts",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/esm/*.js"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p tsconfig.esm.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "dev": "concurrently \"npm run watch\" \"nodemon --watch build dist/index.js\""
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "descope",
+    "mcp",
+    "modelcontextprotocol"
+  ],
+  "author": "Descope (https://descope.com)",
+  "license": "MIT",
+  "dependencies": {
+    "@descope/node-sdk": "^1.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.13",
+    "@types/supertest": "^6.0.3",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "shx": "^0.4.0",
+    "typescript": "^5.8.2"
+  }
+}
