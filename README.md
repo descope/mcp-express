@@ -17,7 +17,7 @@ This is a Typescript-based Express library that leverages [Descope](https://www.
 
 Before you begin, ensure you have:
 
-- An existing [Descope](https://www.descope.com/) application
+- An existing [Descope](https://www.descope.com/) project
 - An existing [Express](https://expressjs.com/en/starter/installing.html) application
 - Node.js version `18.x` or higher
 
