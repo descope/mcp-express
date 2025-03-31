@@ -60,7 +60,7 @@ async function registerClient(client: OAuthClientMetadata, provider: DescopeMcpP
       method: "POST",
       body: JSON.stringify({
         name: client_name,
-        approvedCallbackUrls: [...redirect_uris],
+        approvedCallbackUrls: redirect_uris,
         logo: logo_uri,
         loginPageUrl: provider.options.dynamicClientRegistrationOptions?.authPageUrl,
         permissionsScopes: provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(({ name, description, required, roles }) => ({
