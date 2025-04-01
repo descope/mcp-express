@@ -121,7 +121,7 @@ export class DescopeMcpProvider {
             throw new Error('DESCOPE_MANAGEMENT_KEY is not set.');
         }
         if (!serverUrl) {
-            throw new Error('DESCOPE_MCP_SERVER_URL is not set.');
+            throw new Error('SERVER_URL is not set.');
         }
 
         // Initialize basic properties
