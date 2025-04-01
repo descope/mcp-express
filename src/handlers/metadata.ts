@@ -14,6 +14,10 @@ export function metadataHandler(provider: DescopeMcpProvider): RequestHandler {
   const registration_endpoint = provider.options.dynamicClientRegistrationOptions?.isDisabled ? undefined : new URL("/register", provider.serverUrl).href;
   const revocation_endpoint = provider.descopeOAuthEndpoints.revocation.href;
 
+  const scopes_supported_attribute = provider.options.dynamicClientRegistrationOptions?.attributeScopes?.map(scope => scope.name) ?? [];
+  const scopes_support_permission = provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(scope => scope.name) ?? [];
+  const scopes_supported = [...scopes_supported_attribute, ...scopes_support_permission];
+
   const metadata: OAuthMetadata = {
     issuer: issuer.href,
     service_documentation: provider.options.serviceDocumentationUrl,
@@ -30,6 +34,8 @@ export function metadataHandler(provider: DescopeMcpProvider): RequestHandler {
     revocation_endpoint_auth_methods_supported: revocation_endpoint ? ["client_secret_post"] : undefined,
 
     registration_endpoint,
+
+    scopes_supported: ["openid", ...scopes_supported],
   };
 
   // Nested router so we can configure middleware and restrict HTTP method
