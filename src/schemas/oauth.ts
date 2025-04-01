@@ -31,21 +31,8 @@ export const OAuthMetadataSchema = z
       .array(z.string())
       .optional(),
     code_challenge_methods_supported: z.array(z.string()).optional(),
-  })
-  .passthrough();
+  });
 
-/**
- * OAuth 2.1 token response
- */
-export const OAuthTokensSchema = z
-  .object({
-    access_token: z.string(),
-    token_type: z.string(),
-    expires_in: z.number().optional(),
-    scope: z.string().optional(),
-    refresh_token: z.string().optional(),
-  })
-  .strip();
 
 /**
  * OAuth 2.1 error response
@@ -55,7 +42,8 @@ export const OAuthErrorResponseSchema = z
     error: z.string(),
     error_description: z.string().optional(),
     error_uri: z.string().optional(),
-  });
+  })
+  .strip();
 
 /**
  * RFC 7591 OAuth 2.0 Dynamic Client Registration metadata
@@ -103,7 +91,6 @@ export const OAuthClientRegistrationErrorSchema = z.object({
 
 
 export type OAuthMetadata = z.infer<typeof OAuthMetadataSchema>;
-export type OAuthTokens = z.infer<typeof OAuthTokensSchema>;
 export type OAuthErrorResponse = z.infer<typeof OAuthErrorResponseSchema>;
 export type OAuthClientMetadata = z.infer<typeof OAuthClientMetadataSchema>;
 export type OAuthClientInformation = z.infer<typeof OAuthClientInformationSchema>;

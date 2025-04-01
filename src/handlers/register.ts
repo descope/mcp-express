@@ -3,11 +3,18 @@ import cors from "cors";
 import { OAuthClientInformationFullSchema, OAuthClientMetadata, OAuthClientMetadataSchema } from "../schemas/oauth.js";
 import {
   InvalidClientMetadataError,
+  InvalidRequestError,
   ServerError,
   OAuthError
 } from "../errors.js";
 import { allowedMethods } from "../middleware/allowedMethods.js";
 import { DescopeMcpProvider } from "../provider.js";
+import { DescopeErrorResponse, DescopeErrorResponseSchema } from "../schemas/descope.js";
+
+function formatDescopeError(status: number, errorBody: DescopeErrorResponse): string {
+  const { errorDescription, errorCode } = errorBody;
+  return `${status}${errorDescription ? ` - ${errorDescription}` : ''}${errorCode ? ` (${errorCode})` : ''}`;
+}
 
 export function registrationHandler(provider: DescopeMcpProvider): RequestHandler {
   // Nested router so we can configure middleware and restrict HTTP method
@@ -23,6 +30,10 @@ export function registrationHandler(provider: DescopeMcpProvider): RequestHandle
     res.setHeader('Cache-Control', 'no-store');
 
     try {
+      if (!req.body || typeof req.body !== 'object') {
+        throw new InvalidRequestError("Request body must be a JSON object");
+      }
+
       const parseResult = OAuthClientMetadataSchema.safeParse(req.body);
       if (!parseResult.success) {
         throw new InvalidClientMetadataError(parseResult.error.message);
@@ -64,17 +75,18 @@ async function registerClient(client: OAuthClientMetadata, provider: DescopeMcpP
         logo: logo_uri,
         loginPageUrl: provider.options.dynamicClientRegistrationOptions?.authPageUrl,
         permissionsScopes: provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(({ name, description, required, roles }) => ({
-          name, description, optional: required === true, values: roles
+          name, description, optional: required !== true, values: roles
         })),
         attributesScopes: provider.options.dynamicClientRegistrationOptions?.attributeScopes?.map(({ name, description, required, attributes }) => ({
-          name, description, optional: required === true, values: attributes
+          name, description, optional: required !== true, values: attributes
         })),
       }),
     }
   );
 
   if (!createAppResponse.ok) {
-    throw new ServerError(`Failed to create app: ${createAppResponse.status}`);
+    const parsedError = DescopeErrorResponseSchema.parse(await createAppResponse.json().catch(() => ({})));
+    throw new ServerError(`Failed to create app: ${formatDescopeError(createAppResponse.status, parsedError)}`);
   }
 
   const createAppResponseJson = (await createAppResponse.json()) as {
@@ -95,7 +107,8 @@ async function registerClient(client: OAuthClientMetadata, provider: DescopeMcpP
   );
 
   if (!loadAppResponse.ok) {
-    throw new ServerError(`Failed to load app: ${loadAppResponse.status}`);
+    const parsedError = DescopeErrorResponseSchema.parse(await loadAppResponse.json().catch(() => ({})));
+    throw new ServerError(`Failed to load app: ${formatDescopeError(loadAppResponse.status, parsedError)}`);
   }
 
   const loadAppResponseJson = (await loadAppResponse.json()) as {

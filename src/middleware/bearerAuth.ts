@@ -47,53 +47,55 @@ export function descopeMcpBearerAuth(provider?: DescopeMcpProvider): RequestHand
 }
 
 async function verifyAccessToken(token: string, provider: DescopeMcpProvider): Promise<AuthInfo> {
+    // First validate the token with Descope
+    let authInfo;
     try {
-        const authInfo = await provider.descope.validateSession(token);
-
-        // Validate audience if specified
-        const audience = provider.options.verifyTokenOptions?.audience;
-        if (audience) {
-            const tokenAudience = authInfo.token.aud;
-            if (!tokenAudience) {
-                throw new InvalidTokenError("Token missing audience claim");
-            }
-
-            const hasValidAudience = Array.isArray(tokenAudience)
-                ? tokenAudience.includes(audience)
-                : tokenAudience === audience;
-
-            if (!hasValidAudience) {
-                throw new InvalidTokenError(`Invalid token audience. Expected: ${audience}`);
-            }
-        }
-
-        // Extract scopes from token
-        const scope = authInfo.token.scope as string | undefined;
-        const scopes = scope ? scope.split(" ").filter(Boolean) : [];
-
-        // Validate required scopes if specified
-        const requiredScopes = provider.options.verifyTokenOptions?.requiredScopes;
-        if (requiredScopes?.length) {
-            const missingScopes = requiredScopes.filter(scope => !scopes.includes(scope));
-            if (missingScopes.length > 0) {
-                throw new InsufficientScopeError(
-                    `Missing required scopes: ${missingScopes.join(", ")}`
-                );
-            }
-        }
-
-        // Get client ID from token claims or fallback to project ID
-        const clientId = (authInfo.token.azp as string) || provider.projectId;
-
-        return {
-            token: authInfo.jwt,
-            clientId,
-            scopes,
-            expiresAt: authInfo.token.exp,
-        };
+        authInfo = await provider.descope.validateSession(token);
     } catch (error) {
         throw new InvalidTokenError("Failed to validate token");
     }
+
+    // Validate audience if specified
+    const audience = provider.options.verifyTokenOptions?.audience;
+    if (audience) {
+        const tokenAudience = authInfo.token.aud;
+        if (!tokenAudience) {
+            throw new InvalidTokenError("Token missing audience claim");
+        }
+
+        const hasValidAudience = Array.isArray(tokenAudience)
+            ? tokenAudience.includes(audience)
+            : tokenAudience === audience;
+
+        if (!hasValidAudience) {
+            throw new InvalidTokenError(`Invalid token audience. Expected: ${audience}`);
+        }
+    }
+
+    // Extract scopes from token
+    const scope = authInfo.token.scope as string | undefined;
+    const scopes = scope ? scope.split(" ").filter(Boolean) : [];
+
+    // Validate required scopes if specified
+    const requiredScopes = provider.options.verifyTokenOptions?.requiredScopes;
+    if (requiredScopes?.length) {
+        const missingScopes = requiredScopes.filter(scope => !scopes.includes(scope));
+        if (missingScopes.length > 0) {
+            throw new InsufficientScopeError(
+                `Missing required scopes: ${missingScopes.join(", ")}`
+            );
+        }
+    }
+
+    // Get client ID from token claims or fallback to project ID
+    const clientId = (authInfo.token.azp as string) || provider.projectId;
+
+    return {
+        token: authInfo.jwt,
+        clientId,
+        scopes,
+        expiresAt: authInfo.token.exp,
+    };
 }
 
 function handleAuthError(error: unknown, res: Response): void {
