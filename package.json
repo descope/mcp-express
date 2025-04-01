@@ -29,12 +29,12 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "pnpm run build:esm && pnpm run build:cjs",
     "build:esm": "tsc -p tsconfig.esm.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
-    "prepare": "npm run build",
+    "prepare": "pnpm run build",
     "watch": "tsc --watch",
-    "dev": "concurrently \"npm run watch\" \"nodemon --watch build dist/index.js\""
+    "dev": "concurrently \"pnpm run watch\" \"nodemon --watch build dist/index.js\""
   },
   "files": [
     "dist"
@@ -64,5 +64,6 @@
     "nodemon": "^3.1.9",
     "shx": "^0.4.0",
     "typescript": "^5.8.2"
-  }
+  },
+  "packageManager": "pnpm@10.7.1"
 }
