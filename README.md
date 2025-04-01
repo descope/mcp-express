@@ -1,7 +1,8 @@
 # Descope MCP Express SDK
+
 ![Descope Banner](https://github.com/descope/.github/assets/32936811/d904d37e-e3fa-4331-9f10-2880bb708f64)
 
-This is a Typescript-based Express library that leverages [Descope](https://www.descope.com/) auth and user management capabilities to allow you to easily add [Model Context Protocol (MCP) Specification](https://spec.modelcontextprotocol.io/specification/2025-03-26/basic/authorization/) compliant-Authorization to your MCP Server. It implements the provider side of the OAuth 2.1 protocol with PKCE support, Dynamic Client Registration, and Authorization Server Metadata.
+This is a TypeScript-based Express library that leverages [Descope](https://www.descope.com/) auth and user management capabilities to allow you to easily add [Model Context Protocol (MCP) Specification](https://spec.modelcontextprotocol.io/specification/2025-03-26/basic/authorization/) compliant-Authorization to your MCP Server. It implements the provider side of the OAuth 2.1 protocol with PKCE support, Dynamic Client Registration, and Authorization Server Metadata.
 
 ## Table of Contents
 
@@ -67,6 +68,41 @@ app.listen(3000);
 ```
 
 The `descopeMcpAuthRouter()` function adds the metadata and route handlers (eg. dynamic client registration) to the server while the `descopeMcpBearerAuth()` function checks the request's headers for a Bearer token and, if found, attaches the `Auth` object to the request object under the `auth` key.
+
+5. Add `auth` TypeScript type (optional)
+
+If you're using TypeScript, you can add a type declaration to get proper type checking for the `auth` property that gets attached to the Express request object. Create a new file (e.g., `types/globals.d.ts`) and add:
+
+```typescript
+declare module "express-serve-static-core" {
+    interface Request {
+        /**
+         * Information about the validated access token, if the `descopeMcpBearerAuth` middleware was used.
+         * Contains user information and token details after successful authentication.
+         */
+        auth?: AuthInfo;
+    }
+}
+```
+
+This type declaration will:
+
+- Enable TypeScript autocompletion for the `auth` property on request objects
+- Provide type safety when accessing auth-related properties
+- Help catch potential type-related errors during development
+
+Example usage in your route handlers:
+
+```typescript
+app.post('/message', async (req, res) => {
+    // TypeScript now knows about req.auth
+    if (req.auth) {
+        // Access auth properties with full type support
+        console.log(req.auth.token);
+        console.log(req.auth.scopes);
+    }
+});
+```
 
 ## Advanced Usage Examples
 
