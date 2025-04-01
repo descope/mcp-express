@@ -1,6 +1,6 @@
 import { RequestHandler, Response } from "express";
 import { InsufficientScopeError, InvalidTokenError, OAuthError, ServerError } from "../errors.js";
-import { AuthInfo } from "../schemas/auth.js";
+import { AuthInfo, AuthInfoSchema } from "../schemas/auth.js";
 import { DescopeMcpProvider } from "../provider.js";
 
 declare module "express-serve-static-core" {
@@ -87,15 +87,14 @@ async function verifyAccessToken(token: string, provider: DescopeMcpProvider): P
         }
     }
 
-    // Get client ID from token claims or fallback to project ID
-    const clientId = (authInfo.token.azp as string) || provider.projectId;
+    const clientId = authInfo.token.azp as string;
 
-    return {
+    return AuthInfoSchema.parse({
         token: authInfo.jwt,
         clientId,
         scopes,
         expiresAt: authInfo.token.exp,
-    };
+    });
 }
 
 function handleAuthError(error: unknown, res: Response): void {
