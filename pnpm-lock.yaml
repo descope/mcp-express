@@ -36,6 +36,9 @@ importers:
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
+      '@types/express-serve-static-core':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
