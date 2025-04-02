@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: 18
           cache: pnpm
+      
+      - name: Enable corepack
+        run: corepack enable
 
       - run: pnpm ci
       - run: pnpm run build
