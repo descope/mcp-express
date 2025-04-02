@@ -89,11 +89,12 @@ async function registerClient(client: OAuthClientMetadata, provider: DescopeMcpP
     throw new ServerError(`Failed to create app: ${formatDescopeError(createAppResponse.status, parsedError)}`);
   }
 
-  const createAppResponseJson = (await createAppResponse.json()) as {
+  type CreateAppResponse = {
     id: string;
     cleartext: string;
   };
 
+  const createAppResponseJson = await createAppResponse.json() as CreateAppResponse;
   const appId = createAppResponseJson.id;
 
   const loadAppResponse = await fetch(
@@ -111,10 +112,11 @@ async function registerClient(client: OAuthClientMetadata, provider: DescopeMcpP
     throw new ServerError(`Failed to load app: ${formatDescopeError(loadAppResponse.status, parsedError)}`);
   }
 
-  const loadAppResponseJson = (await loadAppResponse.json()) as {
+  type LoadAppResponse = {
     clientId: string;
   };
 
+  const loadAppResponseJson = await loadAppResponse.json() as LoadAppResponse;
   const client_id = loadAppResponseJson.clientId;
 
   return OAuthClientInformationFullSchema.parse({
