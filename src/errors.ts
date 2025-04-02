@@ -8,7 +8,7 @@ export class OAuthError extends Error {
   constructor(
     public readonly errorCode: string,
     message: string,
-    public readonly errorUri?: string
+    public readonly errorUri?: string,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -21,7 +21,7 @@ export class OAuthError extends Error {
   toResponseObject(): OAuthErrorResponse {
     const response: OAuthErrorResponse = {
       error: this.errorCode,
-      error_description: this.message
+      error_description: this.message,
     };
 
     if (this.errorUri) {

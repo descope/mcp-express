@@ -1,2 +1,2 @@
-export * from './bearerAuth.js';
-export * from './allowedMethods.js'; 
+export * from "./bearerAuth.js";
+export * from "./allowedMethods.js";

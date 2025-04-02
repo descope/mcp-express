@@ -3,13 +3,15 @@ import express from "express";
 import { allowedMethods } from "../middleware/allowedMethods.js";
 import { DescopeMcpProvider } from "../provider.js";
 
-export function authorizationHandler(provider: DescopeMcpProvider): RequestHandler {
+export function authorizationHandler(
+  provider: DescopeMcpProvider,
+): RequestHandler {
   const router = express.Router();
   router.use(allowedMethods(["GET", "POST"]));
   router.use(express.urlencoded({ extended: false }));
 
   router.all("/", (req, res) => {
-    const params = req.method === 'POST' ? req.body : req.query;
+    const params = req.method === "POST" ? req.body : req.query;
 
     // If no scope is provided, add the default openid scope
     // Otherwise, the authorization server will throw an error
@@ -25,4 +27,3 @@ export function authorizationHandler(provider: DescopeMcpProvider): RequestHandl
 
   return router;
 }
-

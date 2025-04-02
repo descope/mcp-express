@@ -31,6 +31,7 @@ npm install @descope/mcp-express
 ## Quick Start
 
 1. Get your credentials from the Descope Console
+
    - [Project ID](https://app.descope.com/settings/project)
    - [Management Key](https://app.descope.com/settings/company/managementkeys)
 
@@ -54,9 +55,12 @@ npm install dotenv
 4. Then, you can use the SDK as follows:
 
 ```typescript
-import 'dotenv/config';
-import express from 'express';
-import { descopeMcpAuthRouter, descopeMcpBearerAuth } from '@descope/mcp-express';
+import "dotenv/config";
+import express from "express";
+import {
+  descopeMcpAuthRouter,
+  descopeMcpBearerAuth,
+} from "@descope/mcp-express";
 
 const app = express();
 
@@ -75,13 +79,13 @@ If you're using TypeScript, you can add a type declaration to get proper type ch
 
 ```typescript
 declare module "express-serve-static-core" {
-    interface Request {
-        /**
-         * Information about the validated access token, if the `descopeMcpBearerAuth` middleware was used.
-         * Contains user information and token details after successful authentication.
-         */
-        auth?: AuthInfo;
-    }
+  interface Request {
+    /**
+     * Information about the validated access token, if the `descopeMcpBearerAuth` middleware was used.
+     * Contains user information and token details after successful authentication.
+     */
+    auth?: AuthInfo;
+  }
 }
 ```
 
@@ -94,13 +98,13 @@ This type declaration will:
 Example usage in your route handlers:
 
 ```typescript
-app.post('/message', async (req, res) => {
-    // TypeScript now knows about req.auth
-    if (req.auth) {
-        // Access auth properties with full type support
-        console.log(req.auth.token);
-        console.log(req.auth.scopes);
-    }
+app.post("/message", async (req, res) => {
+  // TypeScript now knows about req.auth
+  if (req.auth) {
+    // Access auth properties with full type support
+    console.log(req.auth.token);
+    console.log(req.auth.scopes);
+  }
 });
 ```
 
@@ -111,39 +115,42 @@ app.post('/message', async (req, res) => {
 You can configure dynamic client registration options when initializing the provider:
 
 ```typescript
-import express from 'express';
-import { descopeMcpAuthRouter, descopeMcpBearerAuth } from '@descope/mcp-express';
+import express from "express";
+import {
+  descopeMcpAuthRouter,
+  descopeMcpBearerAuth,
+} from "@descope/mcp-express";
 
 const app = express();
 
 const provider = new DescopeMcpProvider({
   // The below values are defaults and can be omitted
   // if the environment variables are set and loaded
-  projectId: process.env['DESCOPE_PROJECT_ID'],
-  managementKey: process.env['DESCOPE_MANAGEMENT_KEY'], 
-  serverUrl: process.env['SERVER_URL'],
-  
+  projectId: process.env["DESCOPE_PROJECT_ID"],
+  managementKey: process.env["DESCOPE_MANAGEMENT_KEY"],
+  serverUrl: process.env["SERVER_URL"],
+
   dynamicClientRegistrationOptions: {
     authPageUrl: `https://api.descope.com/login/${DESCOPE_PROJECT_ID}?flow=consent`,
-    permissionScopes: [{
-      name: "get-schema",
-      description: "Allow getting the SQL schema"
-    }, {
-      name: "run-query",
-      description: "Allow executing a SQL query",
-      required: false,
-    }]
-  }
+    permissionScopes: [
+      {
+        name: "get-schema",
+        description: "Allow getting the SQL schema",
+      },
+      {
+        name: "run-query",
+        description: "Allow executing a SQL query",
+        required: false,
+      },
+    ],
+  },
 });
 
 // Add metadata and route handlers (eg. dynamic client registration)
 app.use(descopeMcpAuthRouter(provider));
 
 // Add bearer token validation
-app.use(
-    ["/sse", "/message"],
-    descopeMcpBearerAuth(provider)
-);
+app.use(["/sse", "/message"], descopeMcpBearerAuth(provider));
 
 app.listen(3000);
 ```
@@ -153,13 +160,13 @@ app.listen(3000);
 You can customize the token verification options by setting the `verifyTokenOptions` object:
 
 ```typescript
-import { descopeMcpBearerAuth, DescopeMcpProvider } from '@descope/mcp-express';
+import { descopeMcpBearerAuth, DescopeMcpProvider } from "@descope/mcp-express";
 
 const provider = new DescopeMcpProvider({
   verifyTokenOptions: {
     requiredScopes: ["get-schema", "run-query"],
-    key: "descope-public-key"
-  }
+    key: "descope-public-key",
+  },
 });
 ```
 
