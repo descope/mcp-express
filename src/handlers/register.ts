@@ -41,7 +41,7 @@ export function registrationHandler(provider: DescopeMcpProvider): RequestHandle
 
       const clientMetadata = parseResult.data;
 
-      let clientInfo = await registerClient(clientMetadata, provider);
+      const clientInfo = await registerClient(clientMetadata, provider);
       res.status(201).json(clientInfo);
     } catch (error) {
       if (error instanceof OAuthError) {
