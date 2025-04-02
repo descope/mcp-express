@@ -21,8 +21,9 @@ jobs:
           node-version: 18
           cache: pnpm
       
-      - name: Enable corepack
-        run: corepack enable
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
 
       - run: pnpm ci
       - run: pnpm run build
