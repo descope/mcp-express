@@ -24,7 +24,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       # Skip post-install scripts here, as a malicious
       # script could steal NODE_AUTH_TOKEN.
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2.4.1
         with:
           version: 10.7.1
       - name: Install dependencies
