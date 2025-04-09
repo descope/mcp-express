@@ -10,9 +10,6 @@ on:
     branches:
       - main
 
-env:
-  NODE_VERSION: 20.x
-
 jobs:
   build:
     name: 👷 Build
@@ -20,27 +17,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 10.7.1
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_READ_ORG }}
+      - uses: ./.github/actions/setup
       - name: Building
-        run: npm run build
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_READ_ORG }}
-      # - name: Examples - es6
-      #   run: cd examples/es6 && npm i && npm run build
-      # - name: Examples - common
-      #   run: cd examples/commonjs && npm i
-      # - name: Examples - Management CLI
-      #   run: cd examples/managementCli && npm i && npm run build
+        run: pnpm build
 
   eslint:
     name: 🪥 ESLint
@@ -48,21 +27,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 10.7.1
-      # Skip post-install scripts here, as a malicious
-      # script could steal NODE_AUTH_TOKEN.
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_READ_ORG }}
-      - run: npm run format-check
-      - run: npm run lint
+      - uses: ./.github/actions/setup
+      - run: pnpm run format-check
+      - run: pnpm run lint
 
   gitleaks:
     name: 🔒 Run Git leaks
@@ -70,21 +37,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 10.7.1
-      # Skip post-install scripts here, as a malicious
-      # script could steal NODE_AUTH_TOKEN.
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_READ_ORG }}
+      - uses: ./.github/actions/setup
       - name: Gitleaks
-        run: npm run leaks
+        run: pnpm run leaks
         shell: bash
 
   unit-test:
@@ -92,22 +47,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [18.x, 20.x]
+        version: [18, 20, 22]
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: ${{ matrix.version }}
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 10.7.1
-      # Skip post-install scripts here, as a malicious
-      # script could steal NODE_AUTH_TOKEN.
       - name: Install dependencies and build
-        run: pnpm install --no-frozen-lockfile --ignore-scripts && npm run build
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_READ_ORG }}
+        run: corepack enable && pnpm install --no-frozen-lockfile --ignore-scripts && npm run build
       - name: Testing
-        run: npm test
+        run: pnpm test

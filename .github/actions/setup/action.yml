@@ -1,36 +1,13 @@
 name: Setup
 description: Setup
-inputs:
-  node_version:
-    description: Node version to use
-    required: true
-  token:
-    description: Token
-    required: true
 runs:
   using: composite
   steps:
     - name: Setup Node.js 🔠
       uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
       with:
-        node-version: ${{ inputs.node_version }}
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.token }}
+        node-version-file: package.json
 
-    - name: Cache node modules 💸
-      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.token }}
-        cache-name: cache-node-modules
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
     - name: Install Dependencies 🪛
       shell: bash
-      run: npm i
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.token }}
+      run: corepack enable && pnpm install
