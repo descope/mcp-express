@@ -79,5 +79,8 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.7.1"
+  "packageManager": "pnpm@10.7.1",
+  "publishConfig": {
+    "access": "public"
+  }
 }
