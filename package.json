@@ -4,9 +4,6 @@
   "description": "Descope Express MCP SDK",
   "type": "module",
   "types": "./dist/esm/index.d.ts",
-  "engines": {
-    "node": ">=18"
-  },
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
@@ -29,17 +26,16 @@
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
-    "build": "pnpm run build:esm && pnpm run build:cjs",
+    "build": "pnpm run \"/build:.*/\"",
     "build:esm": "tsc -p tsconfig.esm.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
-    "prepare": "pnpm run build",
     "watch": "tsc --watch",
     "dev": "concurrently \"pnpm run watch\" \"nodemon --watch build dist/index.js\"",
-    "lint": "pnpm exec eslint src --ext .ts",
-    "lint:fix": "pnpm exec eslint src --ext .ts --fix",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "pnpm run lint --fix",
     "leaks": "bash ./scripts/gitleaks/gitleaks.sh",
-    "format-check": "prettier . --check --ignore-path .gitignore",
-    "format-fix": "prettier . --write --ignore-path .gitignore"
+    "format-check": "prettier . --check",
+    "format-fix": "prettier . --write"
   },
   "files": [
     "dist"
@@ -52,12 +48,12 @@
   "author": "Descope (https://descope.com)",
   "license": "MIT",
   "dependencies": {
-    "@descope/node-sdk": "^1.7.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "zod": "^3.24.2"
+    "@descope/node-sdk": "1.7.2",
+    "cors": "2.8.5",
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "express-rate-limit": "7.5.0",
+    "zod": "3.24.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
@@ -67,17 +63,21 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.13",
     "@types/supertest": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
     "concurrently": "^9.1.2",
-    "eslint": "^9.0.0",
+    "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.2.5",
+    "semantic-release": "^24.2.3",
     "shx": "^0.4.0",
     "supertest": "^7.1.0",
     "ts-jest": "^29.3.1",
     "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "packageManager": "pnpm@10.7.1"
 }
