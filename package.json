@@ -34,8 +34,8 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "pnpm run lint --fix",
     "leaks": "bash ./scripts/gitleaks/gitleaks.sh",
-    "format-check": "prettier . --check --ignore-path .gitignore",
-    "format-fix": "prettier . --write --ignore-path .gitignore"
+    "format-check": "prettier . --check",
+    "format-fix": "prettier . --write"
   },
   "files": [
     "dist"
