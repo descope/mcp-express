@@ -60,8 +60,9 @@ async function verifyAccessToken(
   provider: DescopeMcpProvider,
 ): Promise<AuthInfo> {
   // First validate the token with Descope
-  const authInfo = await provider.descope.validateSession(token)
-    .catch(() => { throw new InvalidTokenError("Failed to validate token"); });
+  const authInfo = await provider.descope.validateSession(token).catch(() => {
+    throw new InvalidTokenError("Failed to validate token");
+  });
 
   // Validate audience if specified
   const audience = provider.options.verifyTokenOptions?.audience;
