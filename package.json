@@ -9,19 +9,6 @@
       "types": "./dist/esm/index.d.ts",
       "require": "./dist/cjs/index.js",
       "default": "./dist/esm/index.js"
-    },
-    "./*.mjs": {
-      "types": "./dist/esm/*.d.ts",
-      "default": "./dist/esm/*.js"
-    },
-    "./*.js": {
-      "types": "./dist/cjs/*.d.ts",
-      "default": "./dist/cjs/*.js"
-    },
-    "./*": {
-      "types": "./dist/esm/*.d.ts",
-      "require": "./dist/cjs/*.js",
-      "default": "./dist/esm/*.js"
     }
   },
   "scripts": {
