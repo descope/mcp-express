@@ -87,7 +87,8 @@ async function registerClient(
       body: JSON.stringify({
         name: client_name,
         approvedCallbackUrls: redirect_uris,
-        logo: logo_uri || provider.options.dynamicClientRegistrationOptions?.logo,
+        logo:
+          logo_uri || provider.options.dynamicClientRegistrationOptions?.logo,
         loginPageUrl:
           provider.options.dynamicClientRegistrationOptions?.authPageUrl,
         permissionsScopes:
