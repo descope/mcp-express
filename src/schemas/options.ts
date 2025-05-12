@@ -59,6 +59,9 @@ export const DynamicClientRegistrationOptionsSchema = z.object({
 
   /** Scopes for permission access */
   permissionScopes: z.array(PermissionScopeSchema).optional(),
+
+  /** Logo for the client */
+  logo: z.string().optional(),
 });
 
 /**
