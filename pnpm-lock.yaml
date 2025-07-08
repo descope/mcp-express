@@ -24,8 +24,8 @@ importers:
         specifier: 7.5.0
         version: 7.5.0(express@4.21.2)
       zod:
-        specifier: 3.25.65
-        version: 3.25.65
+        specifier: 3.25.67
+        version: 3.25.67
     devDependencies:
       '@eslint/js':
         specifier: ^9.24.0
@@ -3038,7 +3038,7 @@ packages:
   supertest@7.1.0:
     resolution: {integrity: sha512-5QeSO8hSrKghtcWEoPiO036fxH0Ii2wVQfFZSP0oqQhmjk8bOLhDFXr4JrvaFmPuEWUoq4znY3uSi8UzLKxGqw==}
     engines: {node: '>=14.18.0'}
-    deprecated: Please upgrade to supertest v7.1.2+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.2 - maintenance is supported by Forward Email @ https://forwardemail.net
+    deprecated: Please upgrade to supertest v7.1.3+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.3 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -3344,8 +3344,8 @@ packages:
     resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
     engines: {node: '>=18'}
 
-  zod@3.25.65:
-    resolution: {integrity: sha512-kMyE2qsXK1p+TAvO7zsf5wMFiCejU3obrUDs9bR1q5CBKykfvp7QhhXrycUylMoOow0iEUSyjLlZZdCsHwSldQ==}
+  zod@3.25.67:
+    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
 
 snapshots:
 
@@ -7152,4 +7152,4 @@ snapshots:
 
   yoctocolors@2.1.1: {}
 
-  zod@3.25.65: {}
+  zod@3.25.67: {}
