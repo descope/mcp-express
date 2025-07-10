@@ -1,0 +1,42 @@
+{
+  "name": "mcp-express-example",
+  "version": "1.0.0",
+  "description": "Example MCP server using @descope/mcp-express",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch server.ts --allow-ts-imports",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "dependencies": {
+    "@descope/mcp-express": "file:../dist/esm/",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.13",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
+    "eslint": "^9.24.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
+  },
+  "keywords": [
+    "mcp",
+    "descope",
+    "oauth",
+    "authentication",
+    "express",
+    "example"
+  ],
+  "author": "Descope",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
