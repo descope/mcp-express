@@ -26,10 +26,6 @@ const provider = new DescopeMcpProvider({
   },
 });
 
-provider.descopeOAuthEndpoints.issuer = new URL(
-  process.env.SERVER_URL || "http://localhost:3000"
-);
-
 // Basic health check endpoint
 app.get("/health", (req, res) => {
   res.json({
