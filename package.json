@@ -1,6 +1,6 @@
 {
   "name": "@descope/mcp-express",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Descope Express MCP SDK",
   "type": "module",
   "types": "./dist/esm/index.d.ts",
@@ -35,7 +35,8 @@
   "author": "Descope (https://descope.com)",
   "license": "MIT",
   "dependencies": {
-    "@descope/node-sdk": "1.7.8",
+    "@descope/node-sdk": "0.0.0-next-c1ace657-20250710",
+    "@modelcontextprotocol/sdk": "^1.15.1",
     "cors": "2.8.5",
     "dotenv": "16.5.0",
     "express": "4.21.2",

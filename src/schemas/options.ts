@@ -42,6 +42,9 @@ export const VerifyTokenOptionsSchema = z.object({
 
   /** Key to use for token verification */
   key: z.union([z.any(), z.string()]).optional(),
+
+  /** Resource indicator to validate according to RFC 8707 */
+  resourceIndicator: z.string().optional(),
 });
 
 /**
@@ -62,6 +65,31 @@ export const DynamicClientRegistrationOptionsSchema = z.object({
 
   /** Logo for the client */
   logo: z.string().optional(),
+});
+
+/**
+ * Configuration for OAuth 2.0 Authorization Server functionality.
+ */
+export const AuthorizationServerOptionsSchema = z.object({
+  /** Whether the Authorization Server endpoints are disabled (default: true) */
+  isDisabled: z.boolean().optional().default(true),
+
+  /** Whether to enable the /authorize endpoint */
+  enableAuthorizeEndpoint: z.boolean().optional(),
+
+  /** Whether to enable dynamic client registration */
+  enableDynamicClientRegistration: z.boolean().optional(),
+});
+
+/**
+ * Configuration for outbound token exchange functionality.
+ */
+export const OutboundTokenConfigSchema = z.object({
+  /** Descope project ID for outbound token requests */
+  projectId: z.string(),
+
+  /** Optional base URL for Descope API */
+  baseUrl: z.string().optional(),
 });
 
 /**
@@ -86,9 +114,15 @@ export const DescopeMcpProviderOptionsSchema = z.object({
   /** Options for dynamic client registration */
   dynamicClientRegistrationOptions:
     DynamicClientRegistrationOptionsSchema.optional(),
-  /** Options for token verification */
 
+  /** Options for Authorization Server endpoints */
+  authorizationServerOptions: AuthorizationServerOptionsSchema.optional(),
+
+  /** Options for token verification */
   verifyTokenOptions: VerifyTokenOptionsSchema.optional(),
+
+  /** Configuration for outbound token exchange */
+  outboundTokenConfig: OutboundTokenConfigSchema.optional(),
 
   /** Human readable documentation */
   serviceDocumentationUrl: z.string().optional(),
@@ -101,6 +135,10 @@ export type VerifyTokenOptions = z.infer<typeof VerifyTokenOptionsSchema>;
 export type DynamicClientRegistrationOptions = z.infer<
   typeof DynamicClientRegistrationOptionsSchema
 >;
+export type AuthorizationServerOptions = z.infer<
+  typeof AuthorizationServerOptionsSchema
+>;
+export type OutboundTokenConfig = z.infer<typeof OutboundTokenConfigSchema>;
 export type DescopeMcpProviderOptions = z.infer<
   typeof DescopeMcpProviderOptionsSchema
 >;

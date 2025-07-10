@@ -26,14 +26,27 @@ describe("DescopeMcpProvider", () => {
       ).toThrow("DESCOPE_PROJECT_ID is not set.");
     });
 
-    it("should throw error when managementKey is missing", () => {
+    it("should not require managementKey by default", () => {
       expect(
         () =>
           new DescopeMcpProvider({
             projectId: "test-project",
             serverUrl: "https://test.example.com",
           }),
-      ).toThrow("DESCOPE_MANAGEMENT_KEY is not set.");
+      ).not.toThrow();
+    });
+
+    it("should require managementKey when Authorization Server is enabled", () => {
+      expect(
+        () =>
+          new DescopeMcpProvider({
+            projectId: "test-project",
+            serverUrl: "https://test.example.com",
+            authorizationServerOptions: {
+              isDisabled: false,
+            },
+          }),
+      ).toThrow("DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.");
     });
 
     it("should throw error when serverUrl is missing", () => {
