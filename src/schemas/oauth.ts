@@ -109,3 +109,16 @@ export type OAuthClientInformationFull = z.infer<
 export type OAuthClientRegistrationError = z.infer<
   typeof OAuthClientRegistrationErrorSchema
 >;
+
+/**
+ * RFC 8705 OAuth 2.0 Protected Resource Metadata
+ */
+export const ProtectedResourceMetadataSchema = z.object({
+  resource: z.string(),
+  authorization_servers: z.array(z.string()),
+  scopes_supported: z.array(z.string()).optional(),
+  bearer_methods_supported: z.array(z.string()).optional(),
+  resource_documentation: z.string().optional(),
+});
+
+export type ProtectedResourceMetadata = z.infer<typeof ProtectedResourceMetadataSchema>;
