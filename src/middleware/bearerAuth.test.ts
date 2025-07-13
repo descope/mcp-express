@@ -31,14 +31,16 @@ describe("descopeMcpBearerAuth", () => {
   });
 
   it("should include resource_metadata in WWW-Authenticate header on 401", async () => {
-    const response = await request(app)
-      .get("/protected")
-      .expect(401);
+    const response = await request(app).get("/protected").expect(401);
 
     const wwwAuth = response.headers["www-authenticate"];
     expect(wwwAuth).toContain('error="invalid_token"');
-    expect(wwwAuth).toContain('error_description="Missing Authorization header"');
-    expect(wwwAuth).toContain('resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"');
+    expect(wwwAuth).toContain(
+      'error_description="Missing Authorization header"',
+    );
+    expect(wwwAuth).toContain(
+      'resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"',
+    );
   });
 
   it("should include resource_metadata in WWW-Authenticate header on invalid token format", async () => {
@@ -49,7 +51,9 @@ describe("descopeMcpBearerAuth", () => {
 
     const wwwAuth = response.headers["www-authenticate"];
     expect(wwwAuth).toContain('error="invalid_token"');
-    expect(wwwAuth).toContain('resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"');
+    expect(wwwAuth).toContain(
+      'resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"',
+    );
   });
 
   it("should include resource_metadata in WWW-Authenticate header on insufficient scope", async () => {
@@ -87,7 +91,9 @@ describe("descopeMcpBearerAuth", () => {
 
     const wwwAuth = response.headers["www-authenticate"];
     expect(wwwAuth).toContain('error="insufficient_scope"');
-    expect(wwwAuth).toContain('resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"');
+    expect(wwwAuth).toContain(
+      'resource_metadata="https://mcp-server.example.com/.well-known/oauth-protected-resource"',
+    );
   });
 
   it("should succeed with valid token and sufficient scopes", async () => {

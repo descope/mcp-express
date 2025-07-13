@@ -20,7 +20,7 @@ export interface OutboundTokenConfig {
  */
 export function createAuthenticatedDescopeClient(
   config: OutboundTokenConfig,
-  userToken: string
+  userToken: string,
 ): ReturnType<typeof DescopeClient> {
   return DescopeClient({
     projectId: config.projectId,
@@ -44,7 +44,7 @@ export function extractUserIdFromAuthInfo(authInfo: AuthInfo): string {
   try {
     // Decode JWT token to extract user ID
     const tokenPayload = JSON.parse(
-      Buffer.from(authInfo.token.split(".")[1], "base64").toString()
+      Buffer.from(authInfo.token.split(".")[1], "base64").toString(),
     );
 
     // Try common user ID fields in order of preference
@@ -54,7 +54,7 @@ export function extractUserIdFromAuthInfo(authInfo: AuthInfo): string {
       tokenPayload.user_id ||
       tokenPayload.clientId
     );
-  } catch (error) {
+  } catch {
     // Fallback to clientId if token parsing fails
     return authInfo.clientId;
   }
@@ -89,7 +89,7 @@ export async function getOutboundToken(
   appId: string,
   authInfo: AuthInfo,
   config: OutboundTokenConfig,
-  scopes?: string[]
+  scopes?: string[],
 ): Promise<string | null> {
   const userId = extractUserIdFromAuthInfo(authInfo);
   const userToken = authInfo.token;
@@ -106,13 +106,13 @@ export async function getOutboundToken(
       await descopeClient.management.outboundApplication.fetchTokenByScopes(
         appId,
         userId,
-        scopes || []
+        scopes || [],
       );
 
     if (!result.ok) {
       console.error(
         `Failed to exchange token for app ${appId} for user ${userId}:`,
-        result.error
+        result.error,
       );
       return null;
     }
@@ -120,7 +120,7 @@ export async function getOutboundToken(
   } catch (error) {
     console.error(
       "Outbound token exchange error:",
-      error instanceof Error ? error.message : "Token exchange failed"
+      error instanceof Error ? error.message : "Token exchange failed",
     );
     return null;
   } finally {

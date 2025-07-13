@@ -84,10 +84,12 @@ describe("descopeMcpAuthRouter", () => {
 
   describe("register endpoint", () => {
     it("should be disabled by default", async () => {
-      const response = await request(app).post("/register").send({
-        client_name: "Test Client",
-        redirect_uris: ["https://test.example.com/callback"],
-      });
+      const response = await request(app)
+        .post("/register")
+        .send({
+          client_name: "Test Client",
+          redirect_uris: ["https://test.example.com/callback"],
+        });
 
       expect(response.status).toBe(404); // Not found because disabled by default
     });
@@ -107,10 +109,12 @@ describe("descopeMcpAuthRouter", () => {
 
       // Note: This test will fail without proper mocking of the Descope API
       // but it tests that the endpoint is accessible when enabled
-      const response = await request(enabledApp).post("/register").send({
-        client_name: "Test Client",
-        redirect_uris: ["https://test.example.com/callback"],
-      });
+      const response = await request(enabledApp)
+        .post("/register")
+        .send({
+          client_name: "Test Client",
+          redirect_uris: ["https://test.example.com/callback"],
+        });
 
       expect(response.status).not.toBe(404); // Should not be 404 when enabled
     });

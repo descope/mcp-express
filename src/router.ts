@@ -27,7 +27,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
  */
 export function descopeMcpAuthRouter(
   toolRegistration?: (server: McpServer) => void,
-  provider?: DescopeMcpProvider
+  provider?: DescopeMcpProvider,
 ): RequestHandler {
   const authProvider = provider || new DescopeMcpProvider();
 
@@ -51,11 +51,11 @@ export function descopeMcpAuthRouter(
     createMcpServerHandler(
       {
         name: "descope-mcp-server",
-        version: "1.0.0"
+        version: "1.0.0",
       },
       toolRegistration,
-      authProvider.options.outboundTokenConfig
-    )
+      authProvider.options.outboundTokenConfig,
+    ),
   );
 
   // Authorization Server endpoints are disabled by default
@@ -80,8 +80,10 @@ export function descopeMcpAuthRouter(
     }
 
     // Enable dynamic client registration if configured
-    if (authServerOptions?.enableDynamicClientRegistration !== false &&
-        !authProvider.options.dynamicClientRegistrationOptions?.isDisabled) {
+    if (
+      authServerOptions?.enableDynamicClientRegistration !== false &&
+      !authProvider.options.dynamicClientRegistrationOptions?.isDisabled
+    ) {
       router.use("/register", registrationHandler(authProvider));
     }
   }

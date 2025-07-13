@@ -127,9 +127,12 @@ export class DescopeMcpProvider {
     }
 
     // Management key is only required when Authorization Server features are enabled
-    const isAuthServerDisabled = opts.authorizationServerOptions?.isDisabled ?? true;
+    const isAuthServerDisabled =
+      opts.authorizationServerOptions?.isDisabled ?? true;
     if (!isAuthServerDisabled && !managementKey) {
-      throw new Error("DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.");
+      throw new Error(
+        "DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.",
+      );
     }
 
     // Initialize basic properties

@@ -101,9 +101,13 @@ async function verifyAccessToken(
   }
 
   // Validate resource indicator if specified (RFC 8707)
-  const resourceIndicator = provider.options.verifyTokenOptions?.resourceIndicator;
+  const resourceIndicator =
+    provider.options.verifyTokenOptions?.resourceIndicator;
   if (resourceIndicator) {
-    const tokenResource = authInfo.token.resource as string | string[] | undefined;
+    const tokenResource = authInfo.token.resource as
+      | string
+      | string[]
+      | undefined;
     if (!tokenResource) {
       throw new InvalidTokenError("Token missing resource claim");
     }
@@ -129,9 +133,16 @@ async function verifyAccessToken(
   });
 }
 
-function handleAuthError(error: unknown, res: Response, provider: DescopeMcpProvider): void {
-  const resourceMetadataUrl = new URL("/.well-known/oauth-protected-resource", provider.serverUrl).href;
-  
+function handleAuthError(
+  error: unknown,
+  res: Response,
+  provider: DescopeMcpProvider,
+): void {
+  const resourceMetadataUrl = new URL(
+    "/.well-known/oauth-protected-resource",
+    provider.serverUrl,
+  ).href;
+
   if (error instanceof InvalidTokenError) {
     res.setHeader(
       "WWW-Authenticate",

@@ -1,34 +1,30 @@
 import { AuthInfo } from "./schemas/auth.js";
 import { z, ZodRawShape } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { CallToolResult, ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
+import {
+  CallToolResult,
+  ServerRequest,
+  ServerNotification,
+} from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { getOutboundToken } from "./utils/outboundToken.js";
-import { OutboundTokenConfig } from "./schemas/options.js";
 
 /**
  * Extended request handler extra with auth info
  */
-export interface ExtendedRequestHandlerExtra extends RequestHandlerExtra<ServerRequest, ServerNotification> {
+export interface ExtendedRequestHandlerExtra
+  extends RequestHandlerExtra<ServerRequest, ServerNotification> {
   authInfo?: AuthInfo;
   [key: string]: unknown;
 }
 
-/**
- * Scope validation result
- */
-export interface ScopeValidationResult {
-  isValid: boolean;
-  missingScopes?: string[];
-  error?: string;
-}
 
 /**
  * Function signature for getting outbound tokens within a tool
  */
 export type GetOutboundTokenFunction = (
   appId: string,
-  scopes?: string[]
+  scopes?: string[],
 ) => Promise<string | null>;
 
 /**
@@ -53,31 +49,25 @@ export type RegisterAuthenticatedToolParams<Args extends ZodRawShape> = {
 };
 
 /**
- * Configuration for authenticated tools with outbound token support
- */
-export interface AuthenticatedToolConfig {
-  // Configuration is now handled automatically by the provider
-}
-
-/**
  * Validates scopes against the authenticated user's scopes
  */
 export function validateScopes(
   authInfo: AuthInfo,
-  requiredScopes: string[] = []
-): ScopeValidationResult {
+  requiredScopes: string[] = [],
+): { isValid: boolean; error?: string } {
   if (requiredScopes.length === 0) {
     return { isValid: true };
   }
 
   const userScopes = authInfo.scopes || [];
-  const missingScopes = requiredScopes.filter(scope => !userScopes.includes(scope));
+  const missingScopes = requiredScopes.filter(
+    (scope) => !userScopes.includes(scope),
+  );
 
   if (missingScopes.length > 0) {
     return {
       isValid: false,
-      missingScopes,
-      error: `Missing required scopes: ${missingScopes.join(", ")}`
+      error: `Missing required scopes: ${missingScopes.join(", ")}`,
     };
   }
 
@@ -86,7 +76,7 @@ export function validateScopes(
 
 /**
  * Registers an authenticated tool with the MCP server with authentication and scope validation
- * 
+ *
  * @example
  * ```typescript
  * const getUserTool = registerAuthenticatedTool({
@@ -100,14 +90,18 @@ export function validateScopes(
  *     return { userId: args.userId, scopes: authInfo.scopes };
  *   }
  * });
- * 
+ *
  * // Register with MCP server
  * getUserTool(server);
  * ```
  */
-export function registerAuthenticatedTool<Args extends ZodRawShape>(
-  { name, description, paramsSchema, requiredScopes = [], execute }: RegisterAuthenticatedToolParams<Args>
-) {
+export function registerAuthenticatedTool<Args extends ZodRawShape>({
+  name,
+  description,
+  paramsSchema,
+  requiredScopes = [],
+  execute,
+}: RegisterAuthenticatedToolParams<Args>) {
   return (server: McpServer) => {
     server.registerTool(
       name,
@@ -120,7 +114,7 @@ export function registerAuthenticatedTool<Args extends ZodRawShape>(
         // Extract auth info from server context (injected by MCP server handler)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const authInfo = (server as any).authInfo || extra?.authInfo;
-        
+
         if (!authInfo) {
           throw new Error("Authentication required but no auth info provided");
         }
@@ -132,11 +126,14 @@ export function registerAuthenticatedTool<Args extends ZodRawShape>(
         }
 
         // Create getOutboundToken function bound to current auth context
-        const getOutboundTokenFn: GetOutboundTokenFunction = async (appId: string, scopes?: string[]) => {
+        const getOutboundTokenFn: GetOutboundTokenFunction = async (
+          appId: string,
+          scopes?: string[],
+        ) => {
           // Get outbound token configuration from server context (uses same project ID and base URL)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outboundTokenConfig = (server as any).outboundTokenConfig;
-          
+
           if (!outboundTokenConfig) {
             throw new Error("Outbound token configuration not provided");
           }
@@ -148,53 +145,20 @@ export function registerAuthenticatedTool<Args extends ZodRawShape>(
           args: args as z.infer<z.ZodObject<Args>>,
           extra: extra as ExtendedRequestHandlerExtra,
           authInfo,
-          getOutboundToken: getOutboundTokenFn
+          getOutboundToken: getOutboundTokenFn,
         });
 
         return {
           content: [
             {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ]
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
         };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }) as any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any,
     );
   };
 }
 
-
-/**
- * Utility to extract user information from auth info for use in tools
- */
-export function extractUserInfo(authInfo: AuthInfo) {
-  return {
-    clientId: authInfo.clientId,
-    scopes: authInfo.scopes,
-    expiresAt: authInfo.expiresAt,
-    token: authInfo.token
-  };
-}
-
-/**
- * Checks if a user has a specific scope
- */
-export function hasScope(authInfo: AuthInfo, scope: string): boolean {
-  return authInfo.scopes?.includes(scope) ?? false;
-}
-
-/**
- * Checks if a user has any of the specified scopes
- */
-export function hasAnyScope(authInfo: AuthInfo, scopes: string[]): boolean {
-  return scopes.some(scope => hasScope(authInfo, scope));
-}
-
-/**
- * Checks if a user has all of the specified scopes
- */
-export function hasAllScopes(authInfo: AuthInfo, scopes: string[]): boolean {
-  return scopes.every(scope => hasScope(authInfo, scope));
-}

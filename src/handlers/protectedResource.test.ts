@@ -16,9 +16,7 @@ const mockProvider = {
         { name: "profile", description: "Profile access" },
         { name: "email", description: "Email access" },
       ],
-      permissionScopes: [
-        { name: "admin", description: "Admin permissions" },
-      ],
+      permissionScopes: [{ name: "admin", description: "Admin permissions" }],
     },
   },
 } as DescopeMcpProvider;
@@ -28,7 +26,10 @@ describe("protectedResourceHandler", () => {
 
   beforeEach(() => {
     app = express();
-    app.use("/.well-known/oauth-protected-resource", protectedResourceHandler(mockProvider));
+    app.use(
+      "/.well-known/oauth-protected-resource",
+      protectedResourceHandler(mockProvider),
+    );
   });
 
   it("should return protected resource metadata", async () => {
@@ -59,9 +60,7 @@ describe("protectedResourceHandler", () => {
       .post("/.well-known/oauth-protected-resource")
       .expect(405);
 
-    await request(app)
-      .put("/.well-known/oauth-protected-resource")
-      .expect(405);
+    await request(app).put("/.well-known/oauth-protected-resource").expect(405);
 
     await request(app)
       .delete("/.well-known/oauth-protected-resource")
@@ -78,7 +77,10 @@ describe("protectedResourceHandler", () => {
     } as DescopeMcpProvider;
 
     const minimalApp = express();
-    minimalApp.use("/.well-known/oauth-protected-resource", protectedResourceHandler(minimalProvider));
+    minimalApp.use(
+      "/.well-known/oauth-protected-resource",
+      protectedResourceHandler(minimalProvider),
+    );
 
     const response = await request(minimalApp)
       .get("/.well-known/oauth-protected-resource")

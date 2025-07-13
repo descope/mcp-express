@@ -4,7 +4,9 @@ import cors from "cors";
 import { allowedMethods } from "../middleware/allowedMethods.js";
 import { DescopeMcpProvider } from "../provider.js";
 
-export function protectedResourceHandler(provider: DescopeMcpProvider): RequestHandler {
+export function protectedResourceHandler(
+  provider: DescopeMcpProvider,
+): RequestHandler {
   const serverUrl = provider.serverUrl;
   const authorizationServer = provider.descopeOAuthEndpoints.issuer.href;
 
@@ -17,11 +19,7 @@ export function protectedResourceHandler(provider: DescopeMcpProvider): RequestH
     provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(
       (scope) => scope.name,
     ) ?? [];
-  const scopes_supported = [
-    "openid",
-    ...attributeScopes,
-    ...permissionScopes,
-  ];
+  const scopes_supported = ["openid", ...attributeScopes, ...permissionScopes];
 
   const metadata: ProtectedResourceMetadata = {
     resource: serverUrl,

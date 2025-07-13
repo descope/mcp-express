@@ -67,34 +67,35 @@ const helloTool = registerAuthenticatedTool({
   name: "hello",
   description: "Say hello to the authenticated user",
   paramsSchema: {
-    name: z.string().describe("Name to greet").optional()
+    name: z.string().describe("Name to greet").optional(),
   },
   requiredScopes: ["openid"], // Basic authentication required
   execute: async ({ args, authInfo, getOutboundToken }) => {
     const name = args.name || "there";
-    
+
     // Optional: Get outbound token for external API calls
     // const externalToken = await getOutboundToken('external-app-id', ['read']);
-    
-    return { 
+
+    return {
       message: `Hello ${name}!`,
-      authenticatedUser: authInfo.clientId 
+      authenticatedUser: authInfo.clientId,
     };
-  }
+  },
 });
 
 // Setup MCP server with authentication and tools
-app.use(descopeMcpAuthRouter(
-  (server) => {
+app.use(
+  descopeMcpAuthRouter((server) => {
     // Register your MCP tools here
     helloTool(server);
-  }
-));
+  }),
+);
 
 app.listen(3000);
 ```
 
 The `descopeMcpAuthRouter()` function:
+
 - Adds the required MCP authentication endpoints
 - Sets up the `/mcp` endpoint with bearer token validation
 - Registers your MCP tools with built-in authentication
@@ -102,6 +103,7 @@ The `descopeMcpAuthRouter()` function:
 **Note:** This creates a complete MCP server with authentication and tool registration. The server validates tokens issued by Descope and provides secure access to your MCP tools.
 
 **DescopeMcpProvider**: The provider handles all the OAuth 2.0 complexity including:
+
 - Bearer token validation via Descope SDK
 - MCP 2025-06-18 compliance (Protected Resource Metadata)
 - OAuth server configuration and endpoints
@@ -202,7 +204,7 @@ const provider = new DescopeMcpProvider({
 
 ### Legacy Authorization Server Mode (Not Recommended)
 
-By default, this SDK operates as a **Resource Server** only, which is the recommended and secure approach for MCP servers. 
+By default, this SDK operates as a **Resource Server** only, which is the recommended and secure approach for MCP servers.
 
 **⚠️ For Legacy/Testing Only:** If you're migrating from an older version or need to test OAuth flows directly, you can enable the legacy Authorization Server mode:
 
@@ -233,10 +235,10 @@ const provider = new DescopeMcpProvider({
 The SDK provides utilities for easily creating MCP tools with built-in authentication and scope validation:
 
 ```typescript
-import { 
+import {
   descopeMcpAuthRouter,
   registerAuthenticatedTool,
-  DescopeMcpProvider
+  DescopeMcpProvider,
 } from "@descope/mcp-express";
 import { z } from "zod";
 
@@ -246,20 +248,20 @@ const provider = new DescopeMcpProvider();
 const getUserTool = registerAuthenticatedTool({
   name: "get_user",
   description: "Get user information",
-  paramsSchema: { 
-    userId: z.string().describe("The user ID to fetch") 
+  paramsSchema: {
+    userId: z.string().describe("The user ID to fetch"),
   },
   requiredScopes: ["profile", "email"], // Require specific scopes
   execute: async ({ args, authInfo, getOutboundToken }) => {
     // args: validated parameters from paramsSchema
     // authInfo: authenticated user information (scopes, clientId, etc.)
     // getOutboundToken: function to get external API tokens
-    
+
     // Optional: Get outbound token for external API calls
     // const externalToken = await getOutboundToken('external-app-id', ['read']);
-    
+
     return { userId: args.userId, scopes: authInfo.scopes };
-  }
+  },
 });
 
 // Define a public tool (basic authentication required)
@@ -268,33 +270,36 @@ const publicTool = registerAuthenticatedTool({
   description: "Get public information",
   paramsSchema: {},
   requiredScopes: ["openid"], // Basic authentication required
-  execute: async ({ authInfo }) => ({ message: "Hello!" })
+  execute: async ({ authInfo }) => ({ message: "Hello!" }),
 });
 
 // Define a profile tool (profile access required)
 const profileTool = registerAuthenticatedTool({
-  name: "get_profile", 
+  name: "get_profile",
   description: "Get user profile",
   paramsSchema: {},
   requiredScopes: ["openid", "profile"], // Profile access required
-  execute: async ({ authInfo }) => ({ clientId: authInfo.clientId })
+  execute: async ({ authInfo }) => ({ clientId: authInfo.clientId }),
 });
 
 // Register tools with your MCP server using the integrated approach
-app.use(descopeMcpAuthRouter(
-  (server) => {
-    // Register all your MCP tools here
-    getUserTool(server);
-    publicTool(server);
-    profileTool(server);
-  },
-  provider // Use your configured provider
-));
+app.use(
+  descopeMcpAuthRouter(
+    (server) => {
+      // Register all your MCP tools here
+      getUserTool(server);
+      publicTool(server);
+      profileTool(server);
+    },
+    provider, // Use your configured provider
+  ),
+);
 ```
 
 **Key Features:**
+
 - ✅ **Automatic scope validation** - Tools automatically check required scopes
-- ✅ **Type-safe parameters** - Zod schema validation for tool arguments  
+- ✅ **Type-safe parameters** - Zod schema validation for tool arguments
 - ✅ **Auth context injection** - Access to authenticated user information
 - ✅ **Clean separation of concerns** - Tools focus on business logic, not auth
 - ✅ **Flexible scope configuration** - Define any required scopes for your tools
@@ -304,6 +309,7 @@ app.use(descopeMcpAuthRouter(
 The SDK implements the [Model Context Protocol Auth Specification (MCP 2025-06-18)](https://spec.modelcontextprotocol.io/), providing:
 
 ### Always Enabled (Resource Server)
+
 - 🛡️ **Protected Resource Metadata** (RFC 8705) - Required by MCP 2025-06-18
 - 🔍 **Authorization Server Metadata** (RFC 8414) - For discovery
 - 🔐 **MCP Server Endpoint** - `/mcp` with full MCP protocol support
@@ -311,9 +317,10 @@ The SDK implements the [Model Context Protocol Auth Specification (MCP 2025-06-1
 - 🔧 **Resource Indicator Support** (RFC 8707) - Prevents token misuse
 
 ### Optional (Authorization Server)
+
 - 🔑 **Authorize endpoint** - Disabled by default
 - 🎫 **Token endpoint** - Provided by Descope
-- 🔄 **Token revocation endpoint** - Provided by Descope  
+- 🔄 **Token revocation endpoint** - Provided by Descope
 - 📝 **Dynamic Client Registration** - Disabled by default
 
 ## OAuth Implementation
@@ -321,11 +328,13 @@ The SDK implements the [Model Context Protocol Auth Specification (MCP 2025-06-1
 This SDK implements OAuth 2.0/2.1 following these RFCs:
 
 ### Resource Server (Always Enabled)
+
 - [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705): OAuth 2.0 Protected Resource Metadata
-- [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414): OAuth 2.0 Authorization Server Metadata  
+- [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414): OAuth 2.0 Authorization Server Metadata
 - [RFC 8707](https://datatracker.ietf.org/doc/html/rfc8707): Resource Indicators for OAuth 2.0
 
 ### Authorization Server (Optional)
+
 - [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591): OAuth 2.0 Dynamic Client Registration
 - [RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009): OAuth 2.0 Token Revocation
 
@@ -334,6 +343,7 @@ All OAuth schemas are implemented using Zod for runtime type validation.
 ## Migration from v0.0.x
 
 If upgrading from an earlier version:
+
 1. The `/mcp` endpoint now uses the official MCP TypeScript SDK with `StreamableHTTPServerTransport`
 2. MCP tools are now registered via the `descopeMcpAuthRouter` function rather than separately
 3. Authorization Server endpoints (`/authorize`, `/register`) are now disabled by default for security

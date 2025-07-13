@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest } from "@jest/globals";
-import { 
-  validateScopes, 
-  hasScope, 
-  hasAnyScope, 
-  hasAllScopes, 
-  extractUserInfo,
-  registerAuthenticatedTool
+import {
+  validateScopes,
+  registerAuthenticatedTool,
 } from "./utils.js";
 import { AuthInfo } from "./schemas/auth.js";
 import { z } from "zod";
@@ -35,71 +31,10 @@ describe("utils", () => {
     it("should return invalid when user is missing scopes", () => {
       const result = validateScopes(mockAuthInfo, ["openid", "admin"]);
       expect(result.isValid).toBe(false);
-      expect(result.missingScopes).toEqual(["admin"]);
       expect(result.error).toBe("Missing required scopes: admin");
     });
-
   });
 
-  describe("hasScope", () => {
-    it("should return true when user has the scope", () => {
-      expect(hasScope(mockAuthInfo, "profile")).toBe(true);
-    });
-
-    it("should return false when user does not have the scope", () => {
-      expect(hasScope(mockAuthInfo, "admin")).toBe(false);
-    });
-
-    it("should handle empty scopes array", () => {
-      const authInfoWithoutScopes = { ...mockAuthInfo, scopes: [] };
-      expect(hasScope(authInfoWithoutScopes, "profile")).toBe(false);
-    });
-
-    it("should handle undefined scopes", () => {
-      const authInfoWithoutScopes: AuthInfo = { ...mockAuthInfo, scopes: undefined as unknown as string[] };
-      expect(hasScope(authInfoWithoutScopes, "profile")).toBe(false);
-    });
-  });
-
-  describe("hasAnyScope", () => {
-    it("should return true when user has at least one scope", () => {
-      expect(hasAnyScope(mockAuthInfo, ["admin", "profile"])).toBe(true);
-    });
-
-    it("should return false when user has none of the scopes", () => {
-      expect(hasAnyScope(mockAuthInfo, ["admin", "moderator"])).toBe(false);
-    });
-
-    it("should return false for empty scope list", () => {
-      expect(hasAnyScope(mockAuthInfo, [])).toBe(false);
-    });
-  });
-
-  describe("hasAllScopes", () => {
-    it("should return true when user has all scopes", () => {
-      expect(hasAllScopes(mockAuthInfo, ["openid", "profile"])).toBe(true);
-    });
-
-    it("should return false when user is missing any scope", () => {
-      expect(hasAllScopes(mockAuthInfo, ["openid", "admin"])).toBe(false);
-    });
-
-    it("should return true for empty scope list", () => {
-      expect(hasAllScopes(mockAuthInfo, [])).toBe(true);
-    });
-  });
-
-  describe("extractUserInfo", () => {
-    it("should extract user information correctly", () => {
-      const userInfo = extractUserInfo(mockAuthInfo);
-      expect(userInfo).toEqual({
-        clientId: "test-client",
-        scopes: ["openid", "profile", "email"],
-        expiresAt: mockAuthInfo.expiresAt,
-        token: "mock-token",
-      });
-    });
-  });
 
   describe("registerAuthenticatedTool", () => {
     const mockServer = {
@@ -112,7 +47,7 @@ describe("utils", () => {
 
     it("should create a tool with scope validation", () => {
       const executeFn = jest.fn().mockResolvedValue({ result: "success" });
-      
+
       const toolDef = registerAuthenticatedTool({
         name: "test_tool",
         description: "Test tool",
@@ -125,17 +60,17 @@ describe("utils", () => {
 
       expect(mockServer.registerTool).toHaveBeenCalledWith(
         "test_tool",
-        expect.objectContaining({ 
+        expect.objectContaining({
           description: "Test tool",
-          inputSchema: expect.objectContaining({ input: expect.any(Object) })
+          inputSchema: expect.objectContaining({ input: expect.any(Object) }),
         }),
-        expect.any(Function)
+        expect.any(Function),
       );
     });
 
     it("should validate scopes and call execute function", async () => {
       const executeFn = jest.fn().mockResolvedValue({ result: "success" });
-      
+
       const toolDef = registerAuthenticatedTool({
         name: "test_tool",
         description: "Test tool",
@@ -147,8 +82,9 @@ describe("utils", () => {
       toolDef(mockServer as any);
 
       // Get the callback function that was registered
-      const [, , callback] = (mockServer.registerTool as jest.Mock).mock.calls[0];
-      
+      const [, , callback] = (mockServer.registerTool as jest.Mock).mock
+        .calls[0];
+
       const args = { input: "test" };
       const extra = { authInfo: mockAuthInfo };
 
@@ -164,10 +100,10 @@ describe("utils", () => {
       expect(result).toEqual({
         content: [
           {
-            type: 'text',
-            text: JSON.stringify({ result: "success" }, null, 2)
-          }
-        ]
+            type: "text",
+            text: JSON.stringify({ result: "success" }, null, 2),
+          },
+        ],
       });
     });
 
@@ -181,17 +117,18 @@ describe("utils", () => {
 
       toolDef(mockServer as any);
 
-      const [, , callback] = (mockServer.registerTool as jest.Mock).mock.calls[0];
-      
+      const [, , callback] = (mockServer.registerTool as jest.Mock).mock
+        .calls[0];
+
       await expect((callback as any)({ input: "test" }, {})).rejects.toThrow(
-        "Authentication required but no auth info provided"
+        "Authentication required but no auth info provided",
       );
     });
 
     it("should throw error when required scopes are missing", async () => {
       const authInfoWithoutProfile = {
         ...mockAuthInfo,
-        scopes: ["openid"] // Missing "profile" scope
+        scopes: ["openid"], // Missing "profile" scope
       };
 
       const toolDef = registerAuthenticatedTool({
@@ -204,12 +141,15 @@ describe("utils", () => {
 
       toolDef(mockServer as any);
 
-      const [, , callback] = (mockServer.registerTool as jest.Mock).mock.calls[0];
-      
-      await expect((callback as any)({ input: "test" }, { authInfo: authInfoWithoutProfile })).rejects.toThrow(
-        "Missing required scopes: profile"
-      );
+      const [, , callback] = (mockServer.registerTool as jest.Mock).mock
+        .calls[0];
+
+      await expect(
+        (callback as any)(
+          { input: "test" },
+          { authInfo: authInfoWithoutProfile },
+        ),
+      ).rejects.toThrow("Missing required scopes: profile");
     });
   });
-
 });

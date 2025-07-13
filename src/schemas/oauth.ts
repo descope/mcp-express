@@ -121,4 +121,6 @@ export const ProtectedResourceMetadataSchema = z.object({
   resource_documentation: z.string().optional(),
 });
 
-export type ProtectedResourceMetadata = z.infer<typeof ProtectedResourceMetadataSchema>;
+export type ProtectedResourceMetadata = z.infer<
+  typeof ProtectedResourceMetadataSchema
+>;

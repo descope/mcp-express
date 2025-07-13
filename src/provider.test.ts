@@ -46,7 +46,9 @@ describe("DescopeMcpProvider", () => {
               isDisabled: false,
             },
           }),
-      ).toThrow("DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.");
+      ).toThrow(
+        "DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.",
+      );
     });
 
     it("should throw error when serverUrl is missing", () => {
