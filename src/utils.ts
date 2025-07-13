@@ -18,7 +18,6 @@ export interface ExtendedRequestHandlerExtra
   [key: string]: unknown;
 }
 
-
 /**
  * Function signature for getting outbound tokens within a tool
  */
@@ -161,4 +160,3 @@ export function registerAuthenticatedTool<Args extends ZodRawShape>({
     );
   };
 }
-

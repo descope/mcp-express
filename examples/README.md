@@ -7,11 +7,13 @@ A minimal example showing how to use authenticated MCP tools with Descope authen
 ### 1. Environment Setup
 
 Copy environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 Configure your Descope project:
+
 ```bash
 # Required
 DESCOPE_PROJECT_ID=your_project_id_here
@@ -26,6 +28,7 @@ npm run dev
 ```
 
 The server will start on `http://localhost:3000` with:
+
 - **MCP Endpoint**: `POST /mcp` (requires authentication)
 - **OAuth Metadata**: `GET /.well-known/oauth-authorization-server`
 - **Protected Resource Metadata**: `GET /.well-known/oauth-protected-resource`
@@ -33,6 +36,7 @@ The server will start on `http://localhost:3000` with:
 ## Example Tool
 
 The example includes a simple **greeting tool** that demonstrates:
+
 - ✅ Authenticated tool registration
 - ✅ Scope validation (`openid` required)
 - ✅ User context access

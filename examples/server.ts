@@ -44,19 +44,13 @@ const mcpRouter = descopeMcpAuthRouter((server) => {
 app.use(mcpRouter);
 
 // Error handling middleware
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-  ) => {
-    console.error("Server error:", err);
-    res.status(500).json({
-      error: "Internal server error",
-      message: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
-  },
-);
+app.use((err: Error, _req: express.Request, res: express.Response) => {
+  console.error("Server error:", err);
+  res.status(500).json({
+    error: "Internal server error",
+    message: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
 
 // Start the server
 app.listen(port, () => {

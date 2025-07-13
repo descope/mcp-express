@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest } from "@jest/globals";
-import {
-  validateScopes,
-  registerAuthenticatedTool,
-} from "./utils.js";
+import { validateScopes, registerAuthenticatedTool } from "./utils.js";
 import { AuthInfo } from "./schemas/auth.js";
 import { z } from "zod";
 
@@ -34,7 +31,6 @@ describe("utils", () => {
       expect(result.error).toBe("Missing required scopes: admin");
     });
   });
-
 
   describe("registerAuthenticatedTool", () => {
     const mockServer = {
