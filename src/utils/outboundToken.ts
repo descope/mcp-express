@@ -1,5 +1,6 @@
 import DescopeClient from "@descope/node-sdk";
 import { AuthInfo } from "../schemas/auth.js";
+import { DescopeMcpProviderOptions } from "../schemas/options.js";
 
 /**
  * Map to temporarily store user tokens during outbound token requests
@@ -7,23 +8,16 @@ import { AuthInfo } from "../schemas/auth.js";
  */
 const userTokens = new Map<string, string>();
 
-/**
- * Configuration for outbound token requests
- */
-export interface OutboundTokenConfig {
-  projectId: string;
-  baseUrl?: string;
-}
 
 /**
  * Creates an authenticated Descope client that includes the user's token in requests
  */
 export function createAuthenticatedDescopeClient(
-  config: OutboundTokenConfig,
+  config: DescopeMcpProviderOptions,
   userToken: string,
 ): ReturnType<typeof DescopeClient> {
   return DescopeClient({
-    projectId: config.projectId,
+    projectId: config.projectId!,
     baseUrl: config.baseUrl,
     hooks: {
       beforeRequest: (requestConfig) => {
@@ -88,7 +82,7 @@ export function extractUserIdFromAuthInfo(authInfo: AuthInfo): string {
 export async function getOutboundToken(
   appId: string,
   authInfo: AuthInfo,
-  config: OutboundTokenConfig,
+  config: DescopeMcpProviderOptions,
   scopes?: string[],
 ): Promise<string | null> {
   const userId = extractUserIdFromAuthInfo(authInfo);
@@ -132,7 +126,7 @@ export async function getOutboundToken(
 /**
  * Factory function to create a getOutboundToken function bound to a specific configuration
  */
-export function createOutboundTokenFactory(config: OutboundTokenConfig) {
+export function createOutboundTokenFactory(config: DescopeMcpProviderOptions) {
   return (appId: string, authInfo: AuthInfo, scopes?: string[]) =>
     getOutboundToken(appId, authInfo, config, scopes);
 }

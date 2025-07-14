@@ -42,15 +42,19 @@ describe("utils", () => {
     });
 
     it("should create a tool with scope validation", () => {
-      const executeFn = jest.fn().mockResolvedValue({ result: "success" });
-
-      const toolDef = registerAuthenticatedTool({
-        name: "test_tool",
-        description: "Test tool",
-        paramsSchema: { input: z.string() },
-        requiredScopes: ["profile"],
-        execute: executeFn as any,
+      const executeFn = jest.fn().mockResolvedValue({ 
+        content: [{ type: "text", text: "success" }] 
       });
+
+      const toolDef = registerAuthenticatedTool(
+        "test_tool",
+        {
+          description: "Test tool",
+          inputSchema: { input: z.string() },
+        },
+        executeFn as any,
+        ["profile"]
+      );
 
       toolDef(mockServer as any);
 
@@ -65,15 +69,19 @@ describe("utils", () => {
     });
 
     it("should validate scopes and call execute function", async () => {
-      const executeFn = jest.fn().mockResolvedValue({ result: "success" });
-
-      const toolDef = registerAuthenticatedTool({
-        name: "test_tool",
-        description: "Test tool",
-        paramsSchema: { input: z.string() },
-        requiredScopes: ["profile"],
-        execute: executeFn as any,
+      const executeFn = jest.fn().mockResolvedValue({ 
+        content: [{ type: "text", text: "success" }] 
       });
+
+      const toolDef = registerAuthenticatedTool(
+        "test_tool",
+        {
+          description: "Test tool",
+          inputSchema: { input: z.string() },
+        },
+        executeFn as any,
+        ["profile"]
+      );
 
       toolDef(mockServer as any);
 
@@ -86,30 +94,33 @@ describe("utils", () => {
 
       const result = await (callback as any)(args, extra);
 
-      expect(executeFn).toHaveBeenCalledWith({
+      expect(executeFn).toHaveBeenCalledWith(
         args,
-        extra,
-        authInfo: mockAuthInfo,
-        getOutboundToken: expect.any(Function),
-      });
+        expect.objectContaining({
+          authInfo: mockAuthInfo,
+          getOutboundToken: expect.any(Function),
+        })
+      );
 
       expect(result).toEqual({
         content: [
           {
             type: "text",
-            text: JSON.stringify({ result: "success" }, null, 2),
+            text: "success"
           },
         ],
       });
     });
 
     it("should throw error when auth info is missing", async () => {
-      const toolDef = registerAuthenticatedTool({
-        name: "test_tool",
-        description: "Test tool",
-        paramsSchema: { input: z.string() },
-        execute: jest.fn() as any,
-      });
+      const toolDef = registerAuthenticatedTool(
+        "test_tool",
+        {
+          description: "Test tool",
+          inputSchema: { input: z.string() },
+        },
+        jest.fn() as any
+      );
 
       toolDef(mockServer as any);
 
@@ -117,7 +128,7 @@ describe("utils", () => {
         .calls[0];
 
       await expect((callback as any)({ input: "test" }, {})).rejects.toThrow(
-        "Authentication required but no auth info provided",
+        "Authentication required",
       );
     });
 
@@ -127,13 +138,15 @@ describe("utils", () => {
         scopes: ["openid"], // Missing "profile" scope
       };
 
-      const toolDef = registerAuthenticatedTool({
-        name: "test_tool",
-        description: "Test tool",
-        paramsSchema: { input: z.string() },
-        requiredScopes: ["profile"],
-        execute: jest.fn() as any,
-      });
+      const toolDef = registerAuthenticatedTool(
+        "test_tool",
+        {
+          description: "Test tool",
+          inputSchema: { input: z.string() },
+        },
+        jest.fn() as any,
+        ["profile"]
+      );
 
       toolDef(mockServer as any);
 

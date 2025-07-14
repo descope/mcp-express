@@ -1,58 +1,54 @@
 import { AuthInfo } from "./schemas/auth.js";
 import { z, ZodRawShape } from "zod";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+  McpServer,
+  RegisteredTool,
+  ToolCallback,
+} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   CallToolResult,
   ServerRequest,
   ServerNotification,
+  ToolAnnotations,
 } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { getOutboundToken } from "./utils/outboundToken.js";
 
+/* -----------------------------------------------------------------------
+ * Public types
+ * -------------------------------------------------------------------- */
+
 /**
- * Extended request handler extra with auth info
+ * Enhanced request handler extra that includes auth info and outbound token function
  */
-export interface ExtendedRequestHandlerExtra
+export interface AuthenticatedExtra
   extends RequestHandlerExtra<ServerRequest, ServerNotification> {
-  authInfo?: AuthInfo;
-  [key: string]: unknown;
+  authInfo: AuthInfo;
+  getOutboundToken: (
+    appId: string,
+    scopes?: string[]
+  ) => Promise<string | null>;
 }
+
+/**
+ * Type helper for inferring Zod schema output
+ */
+export type Inferred<S> = S extends ZodRawShape ? z.infer<z.ZodObject<S>> : void;
 
 /**
  * Function signature for getting outbound tokens within a tool
  */
 export type GetOutboundTokenFunction = (
   appId: string,
-  scopes?: string[],
+  scopes?: string[]
 ) => Promise<string | null>;
-
-/**
- * Tool function signature for authenticated tools
- */
-export type AuthenticatedToolFunction<Args extends ZodRawShape> = (params: {
-  args: z.infer<z.ZodObject<Args>>;
-  extra: ExtendedRequestHandlerExtra;
-  authInfo: AuthInfo;
-  getOutboundToken: GetOutboundTokenFunction;
-}) => Promise<Record<string, unknown>>;
-
-/**
- * Parameters for registering an authenticated tool
- */
-export type RegisterAuthenticatedToolParams<Args extends ZodRawShape> = {
-  name: string;
-  description: string;
-  paramsSchema: Args;
-  requiredScopes?: string[];
-  execute: AuthenticatedToolFunction<Args>;
-};
 
 /**
  * Validates scopes against the authenticated user's scopes
  */
 export function validateScopes(
   authInfo: AuthInfo,
-  requiredScopes: string[] = [],
+  requiredScopes: string[] = []
 ): { isValid: boolean; error?: string } {
   if (requiredScopes.length === 0) {
     return { isValid: true };
@@ -60,7 +56,7 @@ export function validateScopes(
 
   const userScopes = authInfo.scopes || [];
   const missingScopes = requiredScopes.filter(
-    (scope) => !userScopes.includes(scope),
+    (scope) => !userScopes.includes(scope)
   );
 
   if (missingScopes.length > 0) {
@@ -73,90 +69,211 @@ export function validateScopes(
   return { isValid: true };
 }
 
+/* -----------------------------------------------------------------------
+ * Scope validation helpers
+ * -------------------------------------------------------------------- */
+
 /**
- * Registers an authenticated tool with the MCP server with authentication and scope validation
+ * Checks if the user has a specific scope
+ */
+export function hasScope(authInfo: AuthInfo, scope: string): boolean {
+  return authInfo.scopes?.includes(scope) || false;
+}
+
+/**
+ * Checks if the user has any of the provided scopes
+ */
+export function hasAnyScope(authInfo: AuthInfo, scopes: string[]): boolean {
+  return scopes.some((scope) => hasScope(authInfo, scope));
+}
+
+/**
+ * Checks if the user has all of the provided scopes
+ */
+export function hasAllScopes(authInfo: AuthInfo, scopes: string[]): boolean {
+  return scopes.every((scope) => hasScope(authInfo, scope));
+}
+
+/* -----------------------------------------------------------------------
+ * Overload #1 – tool WITH input schema
+ * -------------------------------------------------------------------- */
+export function registerAuthenticatedTool<
+  I extends ZodRawShape,
+  O extends ZodRawShape | undefined = undefined
+>(
+  name: string,
+  config: {
+    title?: string;
+    description?: string;
+    inputSchema: I;
+    outputSchema?: O;
+    annotations?: ToolAnnotations;
+  },
+  cb: (
+    args: z.infer<z.ZodObject<I>>,
+    extra: AuthenticatedExtra
+  ) => CallToolResult | Promise<CallToolResult>,
+  requiredScopes?: string[]
+): (server: McpServer) => RegisteredTool;
+
+/* -----------------------------------------------------------------------
+ * Overload #2 – tool WITHOUT input schema
+ * -------------------------------------------------------------------- */
+export function registerAuthenticatedTool<
+  O extends ZodRawShape | undefined = undefined
+>(
+  name: string,
+  config: {
+    title?: string;
+    description?: string;
+    inputSchema?: undefined;
+    outputSchema?: O;
+    annotations?: ToolAnnotations;
+  },
+  cb: (
+    extra: AuthenticatedExtra
+  ) => CallToolResult | Promise<CallToolResult>,
+  requiredScopes?: string[]
+): (server: McpServer) => RegisteredTool;
+
+/* -----------------------------------------------------------------------
+ * Implementation (shared)
+ * -------------------------------------------------------------------- */
+export function registerAuthenticatedTool(
+  name: string,
+  config: {
+    title?: string;
+    description?: string;
+    inputSchema?: ZodRawShape;
+    outputSchema?: ZodRawShape;
+    annotations?: ToolAnnotations;
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  cb: (...args: any[]) => CallToolResult | Promise<CallToolResult>,
+  requiredScopes: string[] = []
+) {
+  return (server: McpServer) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const wrapped: ToolCallback<any> = async (
+      args: unknown,
+      extra: RequestHandlerExtra<ServerRequest, ServerNotification>
+    ) => {
+      // Get auth info
+      const authInfo: AuthInfo =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (server as any).authInfo ?? (extra as any).authInfo;
+      if (!authInfo) throw new Error("Authentication required");
+
+      // Scope validation
+      if (requiredScopes.length) {
+        const missing = requiredScopes.filter(
+          (s) => !authInfo.scopes?.includes(s)
+        );
+        if (missing.length) {
+          throw new Error(`Missing required scopes: ${missing.join(", ")}`);
+        }
+      }
+
+      // getOutboundToken bound to this request
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const outboundCfg = (server as any).outboundTokenConfig;
+      const getOutboundTokenFn = (appId: string, scopes?: string[]) =>
+        getOutboundToken(appId, authInfo, outboundCfg, scopes);
+
+      const authExtra: AuthenticatedExtra = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(extra as any),
+        authInfo,
+        getOutboundToken: getOutboundTokenFn,
+      };
+
+      // Call user-supplied handler
+      return config.inputSchema
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ? (cb as any)(args, authExtra)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : (cb as any)(authExtra);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return server.registerTool(name, config, wrapped as any);
+  };
+}
+
+/* -----------------------------------------------------------------------
+ * Object-based configuration API
+ * -------------------------------------------------------------------- */
+
+/**
+ * Defines an authenticated tool using object-based configuration.
+ * This provides a more ergonomic API compared to registerAuthenticatedTool.
  *
  * @example
  * ```typescript
- * const getUserTool = registerAuthenticatedTool({
+ * const getUserTool = defineTool({
  *   name: "get_user",
  *   description: "Get user information",
- *   paramsSchema: { userId: z.string() },
- *   requiredScopes: ["profile", "email"],
- *   execute: async ({ args, authInfo, getOutboundToken }) => {
- *     // Access validated args and authenticated user info
- *     const externalToken = await getOutboundToken('external-app-id', ['read']);
- *     return { userId: args.userId, scopes: authInfo.scopes };
+ *   input: z.object({ userId: z.string() }),
+ *   scopes: ["profile"],
+ *   handler: async (args, extra) => {
+ *     const externalToken = await extra.getOutboundToken('external-app-id', ['read']);
+ *     return {
+ *       content: [{ type: "text", text: JSON.stringify({ userId: args.userId }) }]
+ *     };
  *   }
  * });
- *
- * // Register with MCP server
- * getUserTool(server);
  * ```
  */
-export function registerAuthenticatedTool<Args extends ZodRawShape>({
-  name,
-  description,
-  paramsSchema,
-  requiredScopes = [],
-  execute,
-}: RegisterAuthenticatedToolParams<Args>) {
-  return (server: McpServer) => {
-    server.registerTool(
-      name,
+export function defineTool<
+  I extends ZodRawShape | undefined = undefined,
+  O extends ZodRawShape | undefined = undefined
+>(cfg: {
+  name: string;
+  title?: string;
+  description?: string;
+  input?: I;
+  output?: O;
+  scopes?: string[];
+  annotations?: ToolAnnotations;
+  handler: I extends ZodRawShape
+    ? (
+        args: z.infer<z.ZodObject<I>>,
+        extra: AuthenticatedExtra
+      ) => CallToolResult | Promise<CallToolResult>
+    : (
+        extra: AuthenticatedExtra
+      ) => CallToolResult | Promise<CallToolResult>;
+}) {
+  if (cfg.input) {
+    // With input schema
+    return registerAuthenticatedTool(
+      cfg.name,
       {
-        description,
-        inputSchema: paramsSchema,
+        title: cfg.title,
+        description: cfg.description,
+        inputSchema: cfg.input,
+        outputSchema: cfg.output,
+        annotations: cfg.annotations,
       },
+      // the cast is safe; types already guarantee shape
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (async (args: any, extra: any): Promise<CallToolResult> => {
-        // Extract auth info from server context (injected by MCP server handler)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const authInfo = (server as any).authInfo || extra?.authInfo;
-
-        if (!authInfo) {
-          throw new Error("Authentication required but no auth info provided");
-        }
-
-        // Validate required scopes
-        const scopeValidation = validateScopes(authInfo, requiredScopes);
-        if (!scopeValidation.isValid) {
-          throw new Error(scopeValidation.error || "Insufficient permissions");
-        }
-
-        // Create getOutboundToken function bound to current auth context
-        const getOutboundTokenFn: GetOutboundTokenFunction = async (
-          appId: string,
-          scopes?: string[],
-        ) => {
-          // Get outbound token configuration from server context (uses same project ID and base URL)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const outboundTokenConfig = (server as any).outboundTokenConfig;
-
-          if (!outboundTokenConfig) {
-            throw new Error("Outbound token configuration not provided");
-          }
-          return getOutboundToken(appId, authInfo, outboundTokenConfig, scopes);
-        };
-
-        // Call the tool implementation with enhanced context
-        const result = await execute({
-          args: args as z.infer<z.ZodObject<Args>>,
-          extra: extra as ExtendedRequestHandlerExtra,
-          authInfo,
-          getOutboundToken: getOutboundTokenFn,
-        });
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }) as any,
+      cfg.handler as any,
+      cfg.scopes
     );
-  };
+  } else {
+    // Without input schema
+    return registerAuthenticatedTool(
+      cfg.name,
+      {
+        title: cfg.title,
+        description: cfg.description,
+        outputSchema: cfg.output,
+        annotations: cfg.annotations,
+      },
+      // the cast is safe; types already guarantee shape
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cfg.handler as any,
+      cfg.scopes
+    );
+  }
 }
