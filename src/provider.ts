@@ -105,7 +105,7 @@ const API_PATHS = {
 export class DescopeMcpProvider {
   readonly descope: ReturnType<typeof DescopeClient>;
   readonly projectId: string;
-  readonly managementKey: string;
+  readonly managementKey?: string;
   readonly baseUrl: string;
   readonly serverUrl: string;
   readonly descopeOAuthEndpoints: DescopeEndpoints;
@@ -122,11 +122,17 @@ export class DescopeMcpProvider {
     if (!projectId) {
       throw new Error("DESCOPE_PROJECT_ID is not set.");
     }
-    if (!managementKey) {
-      throw new Error("DESCOPE_MANAGEMENT_KEY is not set.");
-    }
     if (!serverUrl) {
       throw new Error("SERVER_URL is not set.");
+    }
+
+    // Management key is only required when Authorization Server features are enabled
+    const isAuthServerDisabled =
+      opts.authorizationServerOptions?.isDisabled ?? true;
+    if (!isAuthServerDisabled && !managementKey) {
+      throw new Error(
+        "DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.",
+      );
     }
 
     // Initialize basic properties
@@ -142,7 +148,7 @@ export class DescopeMcpProvider {
     this.descope = DescopeClient({
       projectId: this.projectId,
       baseUrl: this.baseUrl,
-      managementKey: this.managementKey,
+      ...(this.managementKey && { managementKey: this.managementKey }),
     });
 
     // Initialize endpoints
