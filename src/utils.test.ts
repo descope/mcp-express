@@ -29,7 +29,9 @@ describe("utils", () => {
     it("should return invalid when user is missing scopes", () => {
       const result = validateScopes(mockAuthInfo, ["openid", "admin"]);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Missing required scopes: admin. User has scopes: openid, profile, email");
+      expect(result.error).toBe(
+        "Missing required scopes: admin. User has scopes: openid, profile, email",
+      );
     });
   });
 
@@ -38,8 +40,8 @@ describe("utils", () => {
       registerTool: jest.fn(),
       [MCP_REQUEST_CONTEXT]: {
         authInfo: mockAuthInfo,
-        descopeConfig: undefined
-      }
+        descopeConfig: undefined,
+      },
     };
 
     const mockServerWithoutAuth = {
@@ -52,8 +54,8 @@ describe("utils", () => {
     });
 
     it("should create a tool with scope validation", () => {
-      const executeFn = jest.fn().mockResolvedValue({ 
-        content: [{ type: "text", text: "success" }] 
+      const executeFn = jest.fn().mockResolvedValue({
+        content: [{ type: "text", text: "success" }],
       });
 
       const toolDef = registerAuthenticatedTool(
@@ -63,7 +65,7 @@ describe("utils", () => {
           inputSchema: { input: z.string() },
         },
         executeFn as any,
-        ["profile"]
+        ["profile"],
       );
 
       toolDef(mockServer as any);
@@ -79,8 +81,8 @@ describe("utils", () => {
     });
 
     it("should validate scopes and call execute function", async () => {
-      const executeFn = jest.fn().mockResolvedValue({ 
-        content: [{ type: "text", text: "success" }] 
+      const executeFn = jest.fn().mockResolvedValue({
+        content: [{ type: "text", text: "success" }],
       });
 
       const toolDef = registerAuthenticatedTool(
@@ -90,7 +92,7 @@ describe("utils", () => {
           inputSchema: { input: z.string() },
         },
         executeFn as any,
-        ["profile"]
+        ["profile"],
       );
 
       toolDef(mockServer as any);
@@ -109,14 +111,14 @@ describe("utils", () => {
         expect.objectContaining({
           authInfo: mockAuthInfo,
           getOutboundToken: expect.any(Function),
-        })
+        }),
       );
 
       expect(result).toEqual({
         content: [
           {
             type: "text",
-            text: "success"
+            text: "success",
           },
         ],
       });
@@ -129,16 +131,16 @@ describe("utils", () => {
           description: "Test tool",
           inputSchema: { input: z.string() },
         },
-        jest.fn() as any
+        jest.fn() as any,
       );
 
       toolDef(mockServerWithoutAuth as any);
 
-      const [, , callback] = (mockServerWithoutAuth.registerTool as jest.Mock).mock
-        .calls[0];
+      const [, , callback] = (mockServerWithoutAuth.registerTool as jest.Mock)
+        .mock.calls[0];
 
       await expect((callback as any)({ input: "test" }, {})).rejects.toThrow(
-        "Authentication required for tool \"test_tool\". Ensure a valid bearer token is provided.",
+        'Authentication required for tool "test_tool". Ensure a valid bearer token is provided.',
       );
     });
 
@@ -147,13 +149,13 @@ describe("utils", () => {
         ...mockAuthInfo,
         scopes: ["openid"], // Missing "profile" scope
       };
-      
+
       const mockServerWithLimitedAuth = {
         registerTool: jest.fn(),
         [MCP_REQUEST_CONTEXT]: {
           authInfo: authInfoWithoutProfile,
-          descopeConfig: undefined
-        }
+          descopeConfig: undefined,
+        },
       };
 
       const toolDef = registerAuthenticatedTool(
@@ -163,20 +165,23 @@ describe("utils", () => {
           inputSchema: { input: z.string() },
         },
         jest.fn() as any,
-        ["profile"]
+        ["profile"],
       );
 
       toolDef(mockServerWithLimitedAuth as any);
 
-      const [, , callback] = (mockServerWithLimitedAuth.registerTool as jest.Mock).mock
-        .calls[0];
+      const [, , callback] = (
+        mockServerWithLimitedAuth.registerTool as jest.Mock
+      ).mock.calls[0];
 
       await expect(
         (callback as any)(
           { input: "test" },
           { authInfo: authInfoWithoutProfile },
         ),
-      ).rejects.toThrow("Tool \"test_tool\" requires scopes: profile. User has scopes: openid. Missing: profile. Request these scopes during authentication.");
+      ).rejects.toThrow(
+        'Tool "test_tool" requires scopes: profile. User has scopes: openid. Missing: profile. Request these scopes during authentication.',
+      );
     });
   });
 });

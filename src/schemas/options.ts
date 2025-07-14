@@ -81,7 +81,6 @@ export const AuthorizationServerOptionsSchema = z.object({
   enableDynamicClientRegistration: z.boolean().optional(),
 });
 
-
 /**
  * Configuration options for the Descope MCP SDK.
  */
@@ -110,7 +109,6 @@ export const DescopeMcpProviderOptionsSchema = z.object({
 
   /** Options for token verification */
   verifyTokenOptions: VerifyTokenOptionsSchema.optional(),
-
 
   /** Human readable documentation */
   serviceDocumentationUrl: z.string().optional(),

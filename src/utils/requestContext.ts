@@ -31,7 +31,7 @@ export interface ServerWithContext {
 export function attachRequestContext(
   server: ServerWithContext,
   authInfo: AuthInfo,
-  descopeConfig?: DescopeMcpProviderOptions
+  descopeConfig?: DescopeMcpProviderOptions,
 ): void {
   server[MCP_REQUEST_CONTEXT] = {
     authInfo,
@@ -43,7 +43,7 @@ export function attachRequestContext(
  * Gets request context from a server instance
  */
 export function getRequestContext(
-  server: ServerWithContext
+  server: ServerWithContext,
 ): McpRequestContext | undefined {
   return server[MCP_REQUEST_CONTEXT];
 }

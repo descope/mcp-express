@@ -97,8 +97,8 @@ async function verifyAccessToken(
       const userScopes = scopes.join(", ") || "none";
       throw new InsufficientScopeError(
         `Missing required scopes: ${missingScopes.join(", ")}. ` +
-        `User has scopes: ${userScopes}. ` +
-        `Check /.well-known/oauth-protected-resource for available scopes.`,
+          `User has scopes: ${userScopes}. ` +
+          `Check /.well-known/oauth-protected-resource for available scopes.`,
       );
     }
   }

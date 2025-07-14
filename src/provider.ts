@@ -37,7 +37,7 @@ class UrlBuilder {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Failed to construct URL with base ${base} and paths ${paths.join(", ")}: ${errorMessage}`
+        `Failed to construct URL with base ${base} and paths ${paths.join(", ")}: ${errorMessage}`,
       );
     }
   }
@@ -52,7 +52,7 @@ class UrlBuilder {
 
     if (!isLocalhost && !url.protocol.startsWith("https")) {
       throw new Error(
-        `URL ${url.toString()} must use HTTPS protocol (except for localhost)`
+        `URL ${url.toString()} must use HTTPS protocol (except for localhost)`,
       );
     }
   }
@@ -131,7 +131,7 @@ export class DescopeMcpProvider {
       opts.authorizationServerOptions?.isDisabled ?? true;
     if (!isAuthServerDisabled && !managementKey) {
       throw new Error(
-        "DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled."
+        "DESCOPE_MANAGEMENT_KEY is required when Authorization Server features are enabled.",
       );
     }
 
@@ -159,7 +159,7 @@ export class DescopeMcpProvider {
     opts: Omit<
       DescopeMcpProviderOptions,
       "projectId" | "managementKey" | "baseUrl" | "serverUrl"
-    >
+    >,
   ): DescopeMcpProviderOptions {
     const dynamicClientRegistrationOptions = {
       attributeScopes:
@@ -183,11 +183,11 @@ export class DescopeMcpProvider {
       issuer: UrlBuilder.construct(
         this.baseUrl,
         API_PATHS.ISSUER,
-        this.projectId
+        this.projectId,
       ),
       authorization: UrlBuilder.construct(
         this.baseUrl,
-        API_PATHS.AUTHORIZATION
+        API_PATHS.AUTHORIZATION,
       ),
       token: UrlBuilder.construct(this.baseUrl, API_PATHS.TOKEN),
       revocation: UrlBuilder.construct(this.baseUrl, API_PATHS.REVOCATION),

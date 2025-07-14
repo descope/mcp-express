@@ -3,7 +3,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { AuthInfo } from "../schemas/auth.js";
 import { DescopeMcpProviderOptions } from "../schemas/options.js";
-import { attachRequestContext, ServerWithContext } from "../utils/requestContext.js";
+import {
+  attachRequestContext,
+  ServerWithContext,
+} from "../utils/requestContext.js";
 
 /**
  * MCP server configuration options
@@ -38,7 +41,7 @@ export interface McpServerConfig {
 export function createMcpServerHandler(
   serverConfig: McpServerConfig = {},
   toolRegistration?: (server: McpServer) => void,
-  descopeConfig?: DescopeMcpProviderOptions
+  descopeConfig?: DescopeMcpProviderOptions,
 ): RequestHandler {
   const config = {
     name: serverConfig.name || "descope-mcp-server",
@@ -54,7 +57,11 @@ export function createMcpServerHandler(
 
     // Attach request context to the server for this request lifecycle
     if (authInfo) {
-      attachRequestContext(server as ServerWithContext, authInfo, descopeConfig);
+      attachRequestContext(
+        server as ServerWithContext,
+        authInfo,
+        descopeConfig,
+      );
     }
 
     // Register tools if provided

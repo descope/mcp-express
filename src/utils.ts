@@ -13,7 +13,10 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { getOutboundToken } from "./utils/outboundToken.js";
-import { getRequestContext, ServerWithContext } from "./utils/requestContext.js";
+import {
+  getRequestContext,
+  ServerWithContext,
+} from "./utils/requestContext.js";
 
 /* -----------------------------------------------------------------------
  * Public types
@@ -27,21 +30,23 @@ export interface AuthenticatedExtra
   authInfo: AuthInfo;
   getOutboundToken: (
     appId: string,
-    scopes?: string[]
+    scopes?: string[],
   ) => Promise<string | null>;
 }
 
 /**
  * Type helper for inferring Zod schema output
  */
-export type Inferred<S> = S extends ZodRawShape ? z.infer<z.ZodObject<S>> : void;
+export type Inferred<S> = S extends ZodRawShape
+  ? z.infer<z.ZodObject<S>>
+  : void;
 
 /**
  * Function signature for getting outbound tokens within a tool
  */
 export type GetOutboundTokenFunction = (
   appId: string,
-  scopes?: string[]
+  scopes?: string[],
 ) => Promise<string | null>;
 
 /**
@@ -49,7 +54,7 @@ export type GetOutboundTokenFunction = (
  */
 export function validateScopes(
   authInfo: AuthInfo,
-  requiredScopes: string[] = []
+  requiredScopes: string[] = [],
 ): { isValid: boolean; error?: string } {
   if (requiredScopes.length === 0) {
     return { isValid: true };
@@ -57,7 +62,7 @@ export function validateScopes(
 
   const userScopes = authInfo.scopes || [];
   const missingScopes = requiredScopes.filter(
-    (scope) => !userScopes.includes(scope)
+    (scope) => !userScopes.includes(scope),
   );
 
   if (missingScopes.length > 0) {
@@ -101,7 +106,7 @@ export function hasAllScopes(authInfo: AuthInfo, scopes: string[]): boolean {
  * -------------------------------------------------------------------- */
 export function registerAuthenticatedTool<
   I extends ZodRawShape,
-  O extends ZodRawShape | undefined = undefined
+  O extends ZodRawShape | undefined = undefined,
 >(
   name: string,
   config: {
@@ -113,16 +118,16 @@ export function registerAuthenticatedTool<
   },
   cb: (
     args: z.infer<z.ZodObject<I>>,
-    extra: AuthenticatedExtra
+    extra: AuthenticatedExtra,
   ) => CallToolResult | Promise<CallToolResult>,
-  requiredScopes?: string[]
+  requiredScopes?: string[],
 ): (server: McpServer) => RegisteredTool;
 
 /* -----------------------------------------------------------------------
  * Overload #2 – tool WITHOUT input schema
  * -------------------------------------------------------------------- */
 export function registerAuthenticatedTool<
-  O extends ZodRawShape | undefined = undefined
+  O extends ZodRawShape | undefined = undefined,
 >(
   name: string,
   config: {
@@ -132,10 +137,8 @@ export function registerAuthenticatedTool<
     outputSchema?: O;
     annotations?: ToolAnnotations;
   },
-  cb: (
-    extra: AuthenticatedExtra
-  ) => CallToolResult | Promise<CallToolResult>,
-  requiredScopes?: string[]
+  cb: (extra: AuthenticatedExtra) => CallToolResult | Promise<CallToolResult>,
+  requiredScopes?: string[],
 ): (server: McpServer) => RegisteredTool;
 
 /* -----------------------------------------------------------------------
@@ -152,19 +155,21 @@ export function registerAuthenticatedTool(
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cb: (...args: any[]) => CallToolResult | Promise<CallToolResult>,
-  requiredScopes: string[] = []
+  requiredScopes: string[] = [],
 ) {
   return (server: McpServer) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const wrapped: ToolCallback<any> = async (
       args: unknown,
-      extra: RequestHandlerExtra<ServerRequest, ServerNotification>
+      extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
     ) => {
       // Get request context from the server
       const context = getRequestContext(server as ServerWithContext);
-      
+
       if (!context?.authInfo) {
-        throw new Error(`Authentication required for tool "${name}". Ensure a valid bearer token is provided.`);
+        throw new Error(
+          `Authentication required for tool "${name}". Ensure a valid bearer token is provided.`,
+        );
       }
 
       const { authInfo, descopeConfig } = context;
@@ -172,22 +177,24 @@ export function registerAuthenticatedTool(
       // Scope validation
       if (requiredScopes.length) {
         const missing = requiredScopes.filter(
-          (s) => !authInfo.scopes?.includes(s)
+          (s) => !authInfo.scopes?.includes(s),
         );
         if (missing.length) {
           const userScopes = authInfo.scopes?.join(", ") || "none";
           throw new Error(
             `Tool "${name}" requires scopes: ${requiredScopes.join(", ")}. ` +
-            `User has scopes: ${userScopes}. ` +
-            `Missing: ${missing.join(", ")}. ` +
-            `Request these scopes during authentication.`
+              `User has scopes: ${userScopes}. ` +
+              `Missing: ${missing.join(", ")}. ` +
+              `Request these scopes during authentication.`,
           );
         }
       }
 
       // getOutboundToken bound to this request
       const getOutboundTokenFn = (appId: string, scopes?: string[]) =>
-        descopeConfig ? getOutboundToken(appId, authInfo, descopeConfig, scopes) : Promise.resolve(null);
+        descopeConfig
+          ? getOutboundToken(appId, authInfo, descopeConfig, scopes)
+          : Promise.resolve(null);
 
       const authExtra: AuthenticatedExtra = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,10 +205,10 @@ export function registerAuthenticatedTool(
 
       // Call user-supplied handler
       return config.inputSchema
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ? (cb as any)(args, authExtra)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        : (cb as any)(authExtra);
+        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (cb as any)(args, authExtra)
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (cb as any)(authExtra);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -235,7 +242,7 @@ export function registerAuthenticatedTool(
  */
 export function defineTool<
   I extends ZodRawShape | undefined = undefined,
-  O extends ZodRawShape | undefined = undefined
+  O extends ZodRawShape | undefined = undefined,
 >(cfg: {
   name: string;
   title?: string;
@@ -247,11 +254,9 @@ export function defineTool<
   handler: I extends ZodRawShape
     ? (
         args: z.infer<z.ZodObject<I>>,
-        extra: AuthenticatedExtra
+        extra: AuthenticatedExtra,
       ) => CallToolResult | Promise<CallToolResult>
-    : (
-        extra: AuthenticatedExtra
-      ) => CallToolResult | Promise<CallToolResult>;
+    : (extra: AuthenticatedExtra) => CallToolResult | Promise<CallToolResult>;
 }) {
   if (cfg.input) {
     // With input schema
@@ -267,7 +272,7 @@ export function defineTool<
       // the cast is safe; types already guarantee shape
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cfg.handler as any,
-      cfg.scopes
+      cfg.scopes,
     );
   } else {
     // Without input schema
@@ -282,7 +287,7 @@ export function defineTool<
       // the cast is safe; types already guarantee shape
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cfg.handler as any,
-      cfg.scopes
+      cfg.scopes,
     );
   }
 }

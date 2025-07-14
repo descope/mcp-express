@@ -7,7 +7,8 @@ import { z } from "zod";
  */
 export const greetingTool = defineTool({
   name: "greeting",
-  description: "Say hello to the authenticated user with optional personalization",
+  description:
+    "Say hello to the authenticated user with optional personalization",
   input: {
     name: z.string().describe("Name to greet").optional(),
     includeTime: z
