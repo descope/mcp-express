@@ -3,18 +3,11 @@ import { AuthInfo } from "../schemas/auth.js";
 import { DescopeMcpProviderOptions } from "../schemas/options.js";
 
 /**
- * Map to temporarily store user tokens during outbound token requests
- * Key: userId, Value: userToken
- */
-const userTokens = new Map<string, string>();
-
-
-/**
  * Creates an authenticated Descope client that includes the user's token in requests
  */
 export function createAuthenticatedDescopeClient(
   config: DescopeMcpProviderOptions,
-  userToken: string,
+  userToken: string
 ): ReturnType<typeof DescopeClient> {
   return DescopeClient({
     projectId: config.projectId!,
@@ -38,7 +31,7 @@ export function extractUserIdFromAuthInfo(authInfo: AuthInfo): string {
   try {
     // Decode JWT token to extract user ID
     const tokenPayload = JSON.parse(
-      Buffer.from(authInfo.token.split(".")[1], "base64").toString(),
+      Buffer.from(authInfo.token.split(".")[1], "base64").toString()
     );
 
     // Try common user ID fields in order of preference
@@ -83,15 +76,12 @@ export async function getOutboundToken(
   appId: string,
   authInfo: AuthInfo,
   config: DescopeMcpProviderOptions,
-  scopes?: string[],
+  scopes?: string[]
 ): Promise<string | null> {
   const userId = extractUserIdFromAuthInfo(authInfo);
   const userToken = authInfo.token;
 
   try {
-    // Store user token temporarily for the request
-    userTokens.set(userId, userToken);
-
     // Create authenticated Descope client
     const descopeClient = createAuthenticatedDescopeClient(config, userToken);
 
@@ -100,13 +90,13 @@ export async function getOutboundToken(
       await descopeClient.management.outboundApplication.fetchTokenByScopes(
         appId,
         userId,
-        scopes || [],
+        scopes || []
       );
 
     if (!result.ok) {
       console.error(
         `Failed to exchange token for app ${appId} for user ${userId}:`,
-        result.error,
+        result.error
       );
       return null;
     }
@@ -114,12 +104,9 @@ export async function getOutboundToken(
   } catch (error) {
     console.error(
       "Outbound token exchange error:",
-      error instanceof Error ? error.message : "Token exchange failed",
+      error instanceof Error ? error.message : "Token exchange failed"
     );
     return null;
-  } finally {
-    // Clean up the token from Map after request completes
-    userTokens.delete(userId);
   }
 }
 
