@@ -340,6 +340,14 @@ This SDK implements OAuth 2.0/2.1 following these RFCs:
 
 All OAuth schemas are implemented using Zod for runtime type validation.
 
+### OAuth 2.1 Compliance
+
+This SDK follows OAuth 2.1 specification requirements. Notably, regarding scope handling (section 1.4.1):
+
+> "If the client omits the scope parameter when requesting authorization, the authorization server MUST either process the request using a pre-defined default value or fail the request indicating an invalid scope. The authorization server SHOULD document its scope requirements and default value (if defined)."
+
+By default, Descope fails requests when the scope is undefined, which is compliant with OAuth 2.1. When using the Authorization Server mode (not recommended), the SDK provides a workaround to use default scopes if needed.
+
 ## Migration from v0.0.x
 
 If upgrading from an earlier version:

@@ -3,6 +3,7 @@ import { jest } from "@jest/globals";
 import { validateScopes, registerAuthenticatedTool } from "./utils.js";
 import { AuthInfo } from "./schemas/auth.js";
 import { z } from "zod";
+import { MCP_REQUEST_CONTEXT } from "./utils/requestContext.js";
 
 const mockAuthInfo: AuthInfo = {
   token: "mock-token",
@@ -28,13 +29,22 @@ describe("utils", () => {
     it("should return invalid when user is missing scopes", () => {
       const result = validateScopes(mockAuthInfo, ["openid", "admin"]);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Missing required scopes: admin");
+      expect(result.error).toBe("Missing required scopes: admin. User has scopes: openid, profile, email");
     });
   });
 
   describe("registerAuthenticatedTool", () => {
     const mockServer = {
       registerTool: jest.fn(),
+      [MCP_REQUEST_CONTEXT]: {
+        authInfo: mockAuthInfo,
+        descopeConfig: undefined
+      }
+    };
+
+    const mockServerWithoutAuth = {
+      registerTool: jest.fn(),
+      // No request context
     };
 
     beforeEach(() => {
@@ -122,13 +132,13 @@ describe("utils", () => {
         jest.fn() as any
       );
 
-      toolDef(mockServer as any);
+      toolDef(mockServerWithoutAuth as any);
 
-      const [, , callback] = (mockServer.registerTool as jest.Mock).mock
+      const [, , callback] = (mockServerWithoutAuth.registerTool as jest.Mock).mock
         .calls[0];
 
       await expect((callback as any)({ input: "test" }, {})).rejects.toThrow(
-        "Authentication required",
+        "Authentication required for tool \"test_tool\". Ensure a valid bearer token is provided.",
       );
     });
 
@@ -136,6 +146,14 @@ describe("utils", () => {
       const authInfoWithoutProfile = {
         ...mockAuthInfo,
         scopes: ["openid"], // Missing "profile" scope
+      };
+      
+      const mockServerWithLimitedAuth = {
+        registerTool: jest.fn(),
+        [MCP_REQUEST_CONTEXT]: {
+          authInfo: authInfoWithoutProfile,
+          descopeConfig: undefined
+        }
       };
 
       const toolDef = registerAuthenticatedTool(
@@ -148,9 +166,9 @@ describe("utils", () => {
         ["profile"]
       );
 
-      toolDef(mockServer as any);
+      toolDef(mockServerWithLimitedAuth as any);
 
-      const [, , callback] = (mockServer.registerTool as jest.Mock).mock
+      const [, , callback] = (mockServerWithLimitedAuth.registerTool as jest.Mock).mock
         .calls[0];
 
       await expect(
@@ -158,7 +176,7 @@ describe("utils", () => {
           { input: "test" },
           { authInfo: authInfoWithoutProfile },
         ),
-      ).rejects.toThrow("Missing required scopes: profile");
+      ).rejects.toThrow("Tool \"test_tool\" requires scopes: profile. User has scopes: openid. Missing: profile. Request these scopes during authentication.");
     });
   });
 });

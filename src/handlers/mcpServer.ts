@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { AuthInfo } from "../schemas/auth.js";
 import { DescopeMcpProviderOptions } from "../schemas/options.js";
+import { attachRequestContext, ServerWithContext } from "../utils/requestContext.js";
 
 /**
  * MCP server configuration options
@@ -51,15 +52,14 @@ export function createMcpServerHandler(
     // Get auth info from the authenticated request
     const authInfo = (req as Request & { authInfo?: AuthInfo }).authInfo;
 
+    // Attach request context to the server for this request lifecycle
+    if (authInfo) {
+      attachRequestContext(server as ServerWithContext, authInfo, descopeConfig);
+    }
+
     // Register tools if provided
     if (toolRegistration) {
       toolRegistration(server);
-    }
-    
-    // Store outbound token configuration in the server context for tools to access
-    if (descopeConfig) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (server as any).outboundTokenConfig = descopeConfig;
     }
 
     try {
@@ -68,13 +68,6 @@ export function createMcpServerHandler(
       });
 
       await server.connect(transport);
-
-      // Store auth info in the server context for tools to access
-      if (authInfo) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (server as any).authInfo = authInfo;
-      }
-
       await transport.handleRequest(req, res, req.body);
 
       res.on("close", () => {

@@ -66,16 +66,7 @@ export function descopeMcpAuthRouter(
   if (!isAuthServerDisabled) {
     // Enable /authorize endpoint if Authorization Server is enabled
     if (authServerOptions?.enableAuthorizeEndpoint !== false) {
-      // As stated in OAuth 2.1, section 1.4.1:
-      //
-      // "If the client omits the scope parameter when requesting
-      // authorization, the authorization server MUST either process the
-      // request using a pre-defined default value or fail the request
-      // indicating an invalid scope.  The authorization server SHOULD
-      // document its scope requirements and default value (if defined)."
-      //
-      // By default, Descope fails the request when the scope is undefined.
-      // This is a workaround to instead use a default scope.
+      // OAuth 2.1 scope handling - see README for details
       router.use("/authorize", authorizationHandler(authProvider));
     }
 

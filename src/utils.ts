@@ -13,6 +13,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { getOutboundToken } from "./utils/outboundToken.js";
+import { getRequestContext, ServerWithContext } from "./utils/requestContext.js";
 
 /* -----------------------------------------------------------------------
  * Public types
@@ -60,9 +61,10 @@ export function validateScopes(
   );
 
   if (missingScopes.length > 0) {
+    const userScopes = authInfo.scopes || [];
     return {
       isValid: false,
-      error: `Missing required scopes: ${missingScopes.join(", ")}`,
+      error: `Missing required scopes: ${missingScopes.join(", ")}. User has scopes: ${userScopes.length > 0 ? userScopes.join(", ") : "none"}`,
     };
   }
 
@@ -158,11 +160,14 @@ export function registerAuthenticatedTool(
       args: unknown,
       extra: RequestHandlerExtra<ServerRequest, ServerNotification>
     ) => {
-      // Get auth info
-      const authInfo: AuthInfo =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (server as any).authInfo ?? (extra as any).authInfo;
-      if (!authInfo) throw new Error("Authentication required");
+      // Get request context from the server
+      const context = getRequestContext(server as ServerWithContext);
+      
+      if (!context?.authInfo) {
+        throw new Error(`Authentication required for tool "${name}". Ensure a valid bearer token is provided.`);
+      }
+
+      const { authInfo, descopeConfig } = context;
 
       // Scope validation
       if (requiredScopes.length) {
@@ -170,15 +175,19 @@ export function registerAuthenticatedTool(
           (s) => !authInfo.scopes?.includes(s)
         );
         if (missing.length) {
-          throw new Error(`Missing required scopes: ${missing.join(", ")}`);
+          const userScopes = authInfo.scopes?.join(", ") || "none";
+          throw new Error(
+            `Tool "${name}" requires scopes: ${requiredScopes.join(", ")}. ` +
+            `User has scopes: ${userScopes}. ` +
+            `Missing: ${missing.join(", ")}. ` +
+            `Request these scopes during authentication.`
+          );
         }
       }
 
       // getOutboundToken bound to this request
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const outboundCfg = (server as any).outboundTokenConfig;
       const getOutboundTokenFn = (appId: string, scopes?: string[]) =>
-        getOutboundToken(appId, authInfo, outboundCfg, scopes);
+        descopeConfig ? getOutboundToken(appId, authInfo, descopeConfig, scopes) : Promise.resolve(null);
 
       const authExtra: AuthenticatedExtra = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
