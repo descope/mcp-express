@@ -306,7 +306,7 @@ app.use(
 
 ## Features
 
-The SDK implements the [Model Context Protocol Auth Specification (MCP 2025-06-18)](https://spec.modelcontextprotocol.io/), providing:
+The SDK implements the [Model Context Protocol Auth Specification (MCP 2025-06-18)](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization), providing:
 
 ### Always Enabled (Resource Server)
 
