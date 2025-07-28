@@ -37,10 +37,7 @@
   "dependencies": {
     "@descope/node-sdk": "0.0.0-next-c1ace657-20250710",
     "@modelcontextprotocol/sdk": "^1.15.1",
-    "cors": "2.8.5",
-    "dotenv": "16.6.1",
     "express": "4.21.2",
-    "express-rate-limit": "7.5.1",
     "zod": "3.25.67"
   },
   "devDependencies": {
@@ -54,7 +51,10 @@
     "@types/node": "^22.13.13",
     "@types/supertest": "^6.0.3",
     "concurrently": "^9.1.2",
+    "cors": "2.8.5",
+    "dotenv": "16.6.1",
     "eslint": "^9.24.0",
+    "express-rate-limit": "7.5.1",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
     "nodemon": "^3.1.9",
