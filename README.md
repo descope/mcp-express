@@ -346,7 +346,7 @@ This SDK follows OAuth 2.1 specification requirements. Notably, regarding scope 
 
 > "If the client omits the scope parameter when requesting authorization, the authorization server MUST either process the request using a pre-defined default value or fail the request indicating an invalid scope. The authorization server SHOULD document its scope requirements and default value (if defined)."
 
-By default, Descope fails requests when the scope is undefined, which is compliant with OAuth 2.1. When using the Authorization Server mode (not recommended), the SDK provides a workaround to use default scopes if needed.
+By default, Descope handles requests with undefined scopes by returning default scopes, which is compliant with OAuth 2.1. When using the Authorization Server mode (not recommended), the SDK ensures consistency by explicitly setting the openid scope.
 
 ## Migration from v0.0.x
 
