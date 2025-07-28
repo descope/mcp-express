@@ -50,7 +50,7 @@ export function descopeMcpBearerAuth(
       req.auth = authInfo;
       next();
     } catch (error) {
-      handleAuthError(error, res);
+      handleAuthError(error, res, authProvider);
     }
   };
 }
@@ -94,8 +94,34 @@ async function verifyAccessToken(
       (scope) => !scopes.includes(scope),
     );
     if (missingScopes.length > 0) {
+      const userScopes = scopes.join(", ") || "none";
       throw new InsufficientScopeError(
-        `Missing required scopes: ${missingScopes.join(", ")}`,
+        `Missing required scopes: ${missingScopes.join(", ")}. ` +
+          `User has scopes: ${userScopes}. ` +
+          `Check /.well-known/oauth-protected-resource for available scopes.`,
+      );
+    }
+  }
+
+  // Validate resource indicator if specified (RFC 8707)
+  const resourceIndicator =
+    provider.options.verifyTokenOptions?.resourceIndicator;
+  if (resourceIndicator) {
+    const tokenResource = authInfo.token.resource as
+      | string
+      | string[]
+      | undefined;
+    if (!tokenResource) {
+      throw new InvalidTokenError("Token missing resource claim");
+    }
+
+    const hasValidResource = Array.isArray(tokenResource)
+      ? tokenResource.includes(resourceIndicator)
+      : tokenResource === resourceIndicator;
+
+    if (!hasValidResource) {
+      throw new InvalidTokenError(
+        `Invalid token resource. Expected: ${resourceIndicator}`,
       );
     }
   }
@@ -110,17 +136,26 @@ async function verifyAccessToken(
   });
 }
 
-function handleAuthError(error: unknown, res: Response): void {
+function handleAuthError(
+  error: unknown,
+  res: Response,
+  provider: DescopeMcpProvider,
+): void {
+  const resourceMetadataUrl = new URL(
+    "/.well-known/oauth-protected-resource",
+    provider.serverUrl,
+  ).href;
+
   if (error instanceof InvalidTokenError) {
     res.setHeader(
       "WWW-Authenticate",
-      `Bearer error="${error.errorCode}", error_description="${error.message}"`,
+      `Bearer error="${error.errorCode}", error_description="${error.message}", resource_metadata="${resourceMetadataUrl}"`,
     );
     res.status(401).json(error.toResponseObject());
   } else if (error instanceof InsufficientScopeError) {
     res.setHeader(
       "WWW-Authenticate",
-      `Bearer error="${error.errorCode}", error_description="${error.message}"`,
+      `Bearer error="${error.errorCode}", error_description="${error.message}", resource_metadata="${resourceMetadataUrl}"`,
     );
     res.status(403).json(error.toResponseObject());
   } else if (error instanceof ServerError) {

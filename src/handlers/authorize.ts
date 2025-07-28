@@ -14,7 +14,7 @@ export function authorizationHandler(
     const params = req.method === "POST" ? req.body : req.query;
 
     // If no scope is provided, add the default openid scope
-    // Otherwise, the authorization server will throw an error
+    // While Descope handles empty scopes by returning defaults, we ensure consistency
     if (!params.scope) {
       params.scope = "openid";
     }
