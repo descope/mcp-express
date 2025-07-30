@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@descope/node-sdk':
-        specifier: 0.0.0-next-c1ace657-20250710
-        version: 0.0.0-next-c1ace657-20250710
+        specifier: 1.7.11
+        version: 1.7.11
       '@modelcontextprotocol/sdk':
         specifier: ^1.15.1
         version: 1.15.1
@@ -272,8 +272,8 @@ packages:
   '@descope/core-js-sdk@2.44.4':
     resolution: {integrity: sha512-eCFhb/7SBdPbx/i808BqXJh4F2WM9HP0UdXhbWu4PhboeO030tVWkpzMSHNzkU4khJQ0zJrNXOsccMOgc6Gzcg==}
 
-  '@descope/node-sdk@0.0.0-next-c1ace657-20250710':
-    resolution: {integrity: sha512-HwkpLkRw0bYGv0jruTPmLnogyvp6q47rwJVOKkF8Uvis8tyEBDL+QJBuV1KviM71RyO9pUKYZSkUXBPumCzh3g==}
+  '@descope/node-sdk@1.7.11':
+    resolution: {integrity: sha512-yStwBai598zgTxGsDTUUCKFBsI7i/yA1+EiIw8PZYY8g4FtBye4yBu1IW3uXtpO8KwyfFAtG87RScvR83wkZQQ==}
     engines: {node: '>= 12.0.0'}
 
   '@emnapi/core@1.4.4':
@@ -3530,7 +3530,7 @@ snapshots:
     dependencies:
       jwt-decode: 4.0.0
 
-  '@descope/node-sdk@0.0.0-next-c1ace657-20250710':
+  '@descope/node-sdk@1.7.11':
     dependencies:
       '@descope/core-js-sdk': 2.44.4
       cross-fetch: 4.1.0
