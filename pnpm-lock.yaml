@@ -61,8 +61,8 @@ importers:
         specifier: ^9.24.0
         version: 9.31.0
       express-rate-limit:
-        specifier: 7.5.1
-        version: 7.5.1(express@4.21.2)
+        specifier: 8.0.0
+        version: 8.0.0(express@4.21.2)
       globals:
         specifier: ^16.0.0
         version: 16.3.0
@@ -1477,6 +1477,12 @@ packages:
     peerDependencies:
       express: '>= 4.11'
 
+  express-rate-limit@8.0.0:
+    resolution: {integrity: sha512-FXEAp2ccTeN1ZSO+sPHRHWB0/CrTP5asFBjUaNeD9A0v3iPmgFbLu24vqPjiM9utszI58VGlMokjXQ0W9Dbmjw==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: '>= 4.11'
+
   express@4.21.2:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
@@ -1825,6 +1831,9 @@ packages:
   into-stream@7.0.0:
     resolution: {integrity: sha512-2dYz766i9HprMBasCMvHMuazJ7u4WzhJwo5kb3iPSiW/iRYV6uPari3zHoqZlnuaR7V1bEiNMxikhp37rdBXbw==}
     engines: {node: '>=12'}
+
+  ip@2.0.1:
+    resolution: {integrity: sha512-lJUL9imLTNi1ZfXT+DU6rBBdbiKGBuay9B6xGSPVjUeQwaH1RIGqef8RZkUtHioLmSNpPR5M4HVKJGm1j8FWVQ==}
 
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -4973,13 +4982,14 @@ snapshots:
       jest-mock: 30.0.2
       jest-util: 30.0.2
 
-  express-rate-limit@7.5.1(express@4.21.2):
-    dependencies:
-      express: 4.21.2
-
   express-rate-limit@7.5.1(express@5.1.0):
     dependencies:
       express: 5.1.0
+
+  express-rate-limit@8.0.0(express@4.21.2):
+    dependencies:
+      express: 4.21.2
+      ip: 2.0.1
 
   express@4.21.2:
     dependencies:
@@ -5405,6 +5415,8 @@ snapshots:
     dependencies:
       from2: 2.3.0
       p-is-promise: 3.0.0
+
+  ip@2.0.1: {}
 
   ipaddr.js@1.9.1: {}
 
