@@ -18,6 +18,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
     "watch": "tsc --watch",
     "dev": "concurrently \"pnpm run watch\" \"nodemon --watch build dist/index.js\"",
+    "dev:examples": "tsx examples/dev-server.js",
     "lint": "eslint src --ext .ts",
     "lint:fix": "pnpm run lint --fix",
     "leaks": "bash ./scripts/gitleaks/gitleaks.sh",
@@ -43,17 +44,19 @@
   "devDependencies": {
     "@eslint/js": "^9.24.0",
     "@eslint/json": "^0.12.0",
+    "@eslint/plugin-kit": "^0.3.4",
     "@jest/globals": "^30.0.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/express-serve-static-core": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.13.13",
+    "@types/superagent": "^8.1.9",
     "@types/supertest": "^6.0.3",
     "concurrently": "^9.1.2",
     "cors": "2.8.5",
     "dotenv": "16.6.1",
-    "eslint": "^9.24.0",
+    "eslint": "^9.32.0",
     "express-rate-limit": "7.5.1",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
@@ -72,5 +75,10 @@
   "packageManager": "pnpm@10.13.1",
   "publishConfig": {
     "access": "public"
+  },
+  "pnpm": {
+    "overrides": {
+      "form-data": ">=4.0.4"
+    }
   }
 }
