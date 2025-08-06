@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@descope/node-sdk':
-        specifier: 0.0.0-next-c1ace657-20250710
-        version: 0.0.0-next-c1ace657-20250710
+        specifier: 0.0.0-next-ffe40501-20230718
+        version: 0.0.0-next-ffe40501-20230718
       '@modelcontextprotocol/sdk':
         specifier: ^1.15.1
         version: 1.15.1
@@ -269,11 +269,11 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@descope/core-js-sdk@2.44.4':
-    resolution: {integrity: sha512-eCFhb/7SBdPbx/i808BqXJh4F2WM9HP0UdXhbWu4PhboeO030tVWkpzMSHNzkU4khJQ0zJrNXOsccMOgc6Gzcg==}
+  '@descope/core-js-sdk@1.4.6':
+    resolution: {integrity: sha512-5grbLhvV/dVAabyniJFkcmN+a2c5YmBsQ8VJZfhF7IVTE+4+5ma+C+BwrkJ7jHry6W1IMlSLQI8lwGzajFIhLg==}
 
-  '@descope/node-sdk@0.0.0-next-c1ace657-20250710':
-    resolution: {integrity: sha512-HwkpLkRw0bYGv0jruTPmLnogyvp6q47rwJVOKkF8Uvis8tyEBDL+QJBuV1KviM71RyO9pUKYZSkUXBPumCzh3g==}
+  '@descope/node-sdk@0.0.0-next-ffe40501-20230718':
+    resolution: {integrity: sha512-llLihGgdoM8FV+OhY1DjwExqHvlb2gUBSA/Rnm8JJWY0VgIEqgt/ID9iT+poelTJstrhU0vrjidWSIAnSyCDFg==}
     engines: {node: '>= 12.0.0'}
 
   '@emnapi/core@1.4.4':
@@ -1207,9 +1207,6 @@ packages:
       typescript:
         optional: true
 
-  cross-fetch@4.1.0:
-    resolution: {integrity: sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==}
-
   cross-spawn@6.0.6:
     resolution: {integrity: sha512-VqCUuhcd1iB+dsv8gxPttb5iZh/D0iubSP21g36KXdEuf6I5JiioesUVjpCdHV9MZRUfVFlvwtIUyPfxo5trtw==}
     engines: {node: '>=4.8'}
@@ -1516,6 +1513,10 @@ packages:
   fb-watchman@2.0.2:
     resolution: {integrity: sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==}
 
+  fetch-blob@3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
+
   figures@2.0.0:
     resolution: {integrity: sha512-Oa2M9atig69ZkfwiApY8F2Yy+tzMbazyvqv21R0NsSC8floSOC09BbT1ITWAdoMGQvJ/aZnR1KMwdx9tvHnTNA==}
     engines: {node: '>=4'}
@@ -1577,6 +1578,10 @@ packages:
   form-data@4.0.3:
     resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
     engines: {node: '>= 6'}
+
+  formdata-polyfill@4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
 
   formidable@3.5.4:
     resolution: {integrity: sha512-YikH+7CUTOtP44ZTnUhR7Ic2UASBPOqmaRkRKxRbywPTe5VxF7RRCck4af9wutiZ/QKM5nME9Bie2fFaPz5Gug==}
@@ -2072,8 +2077,8 @@ packages:
       node-notifier:
         optional: true
 
-  jose@5.2.2:
-    resolution: {integrity: sha512-/WByRr4jDcsKlvMd1dRJnPfS1GVO3WuKyaurJ/vvXcOaUQO8rnNObCQMlv/5uCceVQIq5Q4WLF44ohsdiTohdg==}
+  jose@4.14.4:
+    resolution: {integrity: sha512-j8GhLiKmUAh+dsFXlX1aJCbt5KMibuKb+d7j1JaOJG6s2UjX1PQlW+OKB/sD4a/5ZYF4RcmYmLSndOoU3Lt/3g==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -2114,9 +2119,8 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
-  jwt-decode@4.0.0:
-    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
-    engines: {node: '>=18'}
+  jwt-decode@3.1.2:
+    resolution: {integrity: sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2156,6 +2160,10 @@ packages:
 
   lodash.escaperegexp@4.1.2:
     resolution: {integrity: sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw==}
+
+  lodash.get@4.4.2:
+    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
 
   lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
@@ -2331,18 +2339,18 @@ packages:
   nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+
   node-emoji@2.2.0:
     resolution: {integrity: sha512-Z3lTE9pLaJF47NyMhd4ww1yFTAP8YhYI8SleJiHzM46Fgpm5cnNzSl9XfzFNqbaz+VlJrIj3fXQ4DeN1Rjm6cw==}
     engines: {node: '>=18'}
 
-  node-fetch@2.7.0:
-    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
+  node-fetch-commonjs@3.3.1:
+    resolution: {integrity: sha512-kN5TfyrGRWJOZEAx7GvDu7kjvMKjmt4VmaE3dVeDWwzqzNFYgYroRLvTRJAEQ9/Ka3TumTwDrCZ5u3FJUqFb8A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -3083,9 +3091,6 @@ packages:
     resolution: {integrity: sha512-r0eojU4bI8MnHr8c5bNo7lJDdI2qXlWWJk6a9EAFG7vbhTjElYhBVS3/miuE0uOuoLdb8Mc/rVfsmm6eo5o9GA==}
     hasBin: true
 
-  tr46@0.0.3:
-    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
-
   traverse@0.6.8:
     resolution: {integrity: sha512-aXJDbk6SnumuaZSANd21XAo15ucCDE38H4fkqiGsc3MhCK+wOlZvLP9cB/TvpHT0mOyWgC4Z8EwRlzqYSUzdsA==}
     engines: {node: '>= 0.4'}
@@ -3126,6 +3131,9 @@ packages:
         optional: true
       jest-util:
         optional: true
+
+  tslib@1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -3249,11 +3257,9 @@ packages:
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
 
-  webidl-conversions@3.0.1:
-    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-
-  whatwg-url@5.0.0:
-    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
 
   which@1.3.1:
     resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}
@@ -3528,18 +3534,17 @@ snapshots:
   '@colors/colors@1.5.0':
     optional: true
 
-  '@descope/core-js-sdk@2.44.4':
+  '@descope/core-js-sdk@1.4.6':
     dependencies:
-      jwt-decode: 4.0.0
+      jwt-decode: 3.1.2
+      lodash.get: 4.4.2
 
-  '@descope/node-sdk@0.0.0-next-c1ace657-20250710':
+  '@descope/node-sdk@0.0.0-next-ffe40501-20230718':
     dependencies:
-      '@descope/core-js-sdk': 2.44.4
-      cross-fetch: 4.1.0
-      jose: 5.2.2
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - encoding
+      '@descope/core-js-sdk': 1.4.6
+      jose: 4.14.4
+      node-fetch-commonjs: 3.3.1
+      tslib: 1.14.1
 
   '@emnapi/core@1.4.4':
     dependencies:
@@ -4705,12 +4710,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
-  cross-fetch@4.1.0:
-    dependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
-
   cross-spawn@6.0.6:
     dependencies:
       nice-try: 1.0.5
@@ -5086,6 +5085,11 @@ snapshots:
     dependencies:
       bser: 2.1.1
 
+  fetch-blob@3.2.0:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.3.3
+
   figures@2.0.0:
     dependencies:
       escape-string-regexp: 1.0.5
@@ -5169,6 +5173,10 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.2
       mime-types: 2.1.35
+
+  formdata-polyfill@4.0.10:
+    dependencies:
+      fetch-blob: 3.2.0
 
   formidable@3.5.4:
     dependencies:
@@ -5828,7 +5836,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  jose@5.2.2: {}
+  jose@4.14.4: {}
 
   js-tokens@4.0.0: {}
 
@@ -5861,7 +5869,7 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  jwt-decode@4.0.0: {}
+  jwt-decode@3.1.2: {}
 
   keyv@4.5.4:
     dependencies:
@@ -5901,6 +5909,8 @@ snapshots:
   lodash.capitalize@4.2.1: {}
 
   lodash.escaperegexp@4.1.2: {}
+
+  lodash.get@4.4.2: {}
 
   lodash.isplainobject@4.0.6: {}
 
@@ -6028,6 +6038,8 @@ snapshots:
 
   nice-try@1.0.5: {}
 
+  node-domexception@1.0.0: {}
+
   node-emoji@2.2.0:
     dependencies:
       '@sindresorhus/is': 4.6.0
@@ -6035,9 +6047,10 @@ snapshots:
       emojilib: 2.4.0
       skin-tone: 2.0.0
 
-  node-fetch@2.7.0:
+  node-fetch-commonjs@3.3.1:
     dependencies:
-      whatwg-url: 5.0.0
+      formdata-polyfill: 4.0.10
+      web-streams-polyfill: 3.3.3
 
   node-int64@0.4.0: {}
 
@@ -6742,8 +6755,6 @@ snapshots:
 
   touch@3.1.1: {}
 
-  tr46@0.0.3: {}
-
   traverse@0.6.8: {}
 
   tree-kill@1.2.2: {}
@@ -6771,6 +6782,8 @@ snapshots:
       '@jest/types': 30.0.1
       babel-jest: 30.0.4(@babel/core@7.28.0)
       jest-util: 30.0.2
+
+  tslib@1.14.1: {}
 
   tslib@2.8.1: {}
 
@@ -6891,12 +6904,7 @@ snapshots:
     dependencies:
       makeerror: 1.0.12
 
-  webidl-conversions@3.0.1: {}
-
-  whatwg-url@5.0.0:
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
+  web-streams-polyfill@3.3.3: {}
 
   which@1.3.1:
     dependencies:
