@@ -36,14 +36,14 @@
   "author": "Descope (https://descope.com)",
   "license": "MIT",
   "dependencies": {
-    "@descope/node-sdk": "0.0.0-next-c1ace657-20250710",
+    "@descope/node-sdk": "^1.7.11",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "express": "4.21.2",
     "zod": "3.25.67"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
-    "@eslint/json": "^0.12.0",
+    "@eslint/json": "^0.13.0",
     "@eslint/plugin-kit": "^0.3.4",
     "@jest/globals": "^30.0.0",
     "@types/cors": "^2.8.17",
@@ -57,7 +57,7 @@
     "cors": "2.8.5",
     "dotenv": "16.6.1",
     "eslint": "^9.32.0",
-    "express-rate-limit": "7.5.1",
+    "express-rate-limit": "8.0.1",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
     "nodemon": "^3.1.9",
