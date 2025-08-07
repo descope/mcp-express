@@ -178,6 +178,7 @@ const provider = new DescopeMcpProvider({
         required: false,
       },
     ],
+    nonConfidentialClient: true, // Set to true for public clients (no client secret)
   },
 });
 
