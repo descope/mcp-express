@@ -109,6 +109,9 @@ async function registerClient(
               values: attributes,
             }),
           ),
+        nonConfidentialClient:
+          provider.options.dynamicClientRegistrationOptions
+            ?.nonConfidentialClient === true,
       }),
     },
   );

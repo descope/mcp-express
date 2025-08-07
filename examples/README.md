@@ -20,6 +20,14 @@ DESCOPE_PROJECT_ID=your_project_id_here
 SERVER_URL=http://localhost:3000
 ```
 
+### Configure Descope Project
+
+Enable Dynamic Client Registration (DCR) and configure scopes:
+
+1. Go to [Descope Console](https://app.descope.com/apps/inbound)
+2. Navigate to **Inbound App Settings**
+3. Enable **Dynamic client registration**
+
 ### 2. Run Example
 
 ```bash
