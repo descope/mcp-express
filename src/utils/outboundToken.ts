@@ -16,7 +16,7 @@ export function createAuthenticatedDescopeClient(
       beforeRequest: (requestConfig) => {
         requestConfig.headers = {
           ...requestConfig.headers,
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${config.projectId}:${userToken}`,
         };
         return requestConfig;
       },
