@@ -20,14 +20,14 @@ import {
 
 function formatDescopeError(
   status: number,
-  errorBody: DescopeErrorResponse
+  errorBody: DescopeErrorResponse,
 ): string {
   const { errorDescription, errorCode } = errorBody;
   return `${status}${errorDescription ? ` - ${errorDescription}` : ""}${errorCode ? ` (${errorCode})` : ""}`;
 }
 
 export function registrationHandler(
-  provider: DescopeMcpProvider
+  provider: DescopeMcpProvider,
 ): RequestHandler {
   // Nested router so we can configure middleware and restrict HTTP method
   const router = express.Router();
@@ -72,7 +72,7 @@ export function registrationHandler(
 
 async function registerClient(
   client: OAuthClientMetadata,
-  provider: DescopeMcpProvider
+  provider: DescopeMcpProvider,
 ) {
   const { client_name, redirect_uris, logo_uri } = client;
 
@@ -98,7 +98,7 @@ async function registerClient(
               description,
               optional: required !== true,
               values: roles,
-            })
+            }),
           ),
         attributesScopes:
           provider.options.dynamicClientRegistrationOptions?.attributeScopes?.map(
@@ -107,21 +107,21 @@ async function registerClient(
               description,
               optional: required !== true,
               values: attributes,
-            })
+            }),
           ),
         nonConfidentialClient:
           provider.options.dynamicClientRegistrationOptions
             ?.nonConfidentialClient === true,
       }),
-    }
+    },
   );
 
   if (!createAppResponse.ok) {
     const parsedError = DescopeErrorResponseSchema.parse(
-      await createAppResponse.json().catch(() => ({}))
+      await createAppResponse.json().catch(() => ({})),
     );
     throw new ServerError(
-      `Failed to create app: ${formatDescopeError(createAppResponse.status, parsedError)}`
+      `Failed to create app: ${formatDescopeError(createAppResponse.status, parsedError)}`,
     );
   }
 
@@ -141,15 +141,15 @@ async function registerClient(
         Authorization: `Bearer ${provider.projectId}:${provider.managementKey}`,
       },
       method: "GET",
-    }
+    },
   );
 
   if (!loadAppResponse.ok) {
     const parsedError = DescopeErrorResponseSchema.parse(
-      await loadAppResponse.json().catch(() => ({}))
+      await loadAppResponse.json().catch(() => ({})),
     );
     throw new ServerError(
-      `Failed to load app: ${formatDescopeError(loadAppResponse.status, parsedError)}`
+      `Failed to load app: ${formatDescopeError(loadAppResponse.status, parsedError)}`,
     );
   }
 
