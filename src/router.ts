@@ -27,7 +27,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
  */
 export function descopeMcpAuthRouter(
   toolRegistration?: (server: McpServer) => void,
-  provider?: DescopeMcpProvider
+  provider?: DescopeMcpProvider,
 ): RequestHandler {
   const authProvider = provider || new DescopeMcpProvider();
 
@@ -36,12 +36,12 @@ export function descopeMcpAuthRouter(
   // Always provide metadata endpoints (required for MCP 2025-06-18 compliance)
   router.use(
     "/.well-known/oauth-authorization-server",
-    metadataHandler(authProvider)
+    metadataHandler(authProvider),
   );
 
   router.use(
     "/.well-known/oauth-protected-resource",
-    protectedResourceHandler(authProvider)
+    protectedResourceHandler(authProvider),
   );
 
   // MCP server endpoint - bearer auth always enabled, server handler only when tools are registered
@@ -55,8 +55,8 @@ export function descopeMcpAuthRouter(
           version: "1.0.0",
         },
         toolRegistration,
-        authProvider.options
-      )
+        authProvider.options,
+      ),
     );
   } else {
     router.use("/mcp", descopeMcpBearerAuth(authProvider));
