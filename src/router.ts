@@ -44,19 +44,23 @@ export function descopeMcpAuthRouter(
     protectedResourceHandler(authProvider),
   );
 
-  // MCP server endpoint - always enabled with authentication
-  router.post(
-    "/mcp",
-    descopeMcpBearerAuth(authProvider),
-    createMcpServerHandler(
-      {
-        name: "descope-mcp-server",
-        version: "1.0.0",
-      },
-      toolRegistration,
-      authProvider.options,
-    ),
-  );
+  // MCP server endpoint - bearer auth always enabled, server handler only when tools are registered
+  if (toolRegistration) {
+    router.post(
+      "/mcp",
+      descopeMcpBearerAuth(authProvider),
+      createMcpServerHandler(
+        {
+          name: "descope-mcp-server",
+          version: "1.0.0",
+        },
+        toolRegistration,
+        authProvider.options,
+      ),
+    );
+  } else {
+    router.use("/mcp", descopeMcpBearerAuth(authProvider));
+  }
 
   // Authorization Server endpoints are disabled by default
   // Enable them only if explicitly configured
