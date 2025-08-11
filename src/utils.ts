@@ -163,7 +163,7 @@ export function registerAuthenticatedTool(
       args: unknown,
       extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
     ) => {
-      // Get request context from the server
+      // Get auth context from the server
       const context = getRequestContext(server as ServerWithContext);
 
       if (!context?.authInfo) {

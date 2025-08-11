@@ -86,12 +86,20 @@ export async function getOutboundToken(
     const descopeClient = createAuthenticatedDescopeClient(config, userToken);
 
     // Use the new outbound token exchange API from the next version
-    const result =
-      await descopeClient.management.outboundApplication.fetchTokenByScopes(
+    let result;
+    if (scopes && scopes.length > 0) {
+      result =
+        await descopeClient.management.outboundApplication.fetchTokenByScopes(
+          appId,
+          userId,
+          scopes || [],
+        );
+    } else {
+      result = await descopeClient.management.outboundApplication.fetchToken(
         appId,
         userId,
-        scopes || [],
       );
+    }
 
     if (!result.ok) {
       console.error(
