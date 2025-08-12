@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { descopeMcpAuthRouter, DescopeMcpProvider } from "@descope/mcp-express";
 import { greetingTool } from "./tools/greetingTool.js";
+import { statusTool } from "./tools/statusTool.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,7 +16,7 @@ const provider = new DescopeMcpProvider({
   projectId: process.env.DESCOPE_PROJECT_ID,
   serverUrl: process.env.SERVER_URL,
   baseUrl: process.env.DESCOPE_BASE_URL,
-  // Optional: Enable Authorization Server endpoints for testing
+  // Optional: Enable Authorization Server endpoints for testing (legacy mode)
   authorizationServerOptions: {
     isDisabled: process.env.ENABLE_AUTH_SERVER === "true" ? false : true,
     enableAuthorizeEndpoint: process.env.ENABLE_AUTH_SERVER === "true",
@@ -34,44 +35,54 @@ app.get("/health", (req, res) => {
 
 // Setup MCP router with authentication and tools
 const mcpRouter = descopeMcpAuthRouter((server) => {
-  // Register example tool
+  // Register example tools
   greetingTool(server);
+  statusTool(server);
 
-  console.log("✅ Registered MCP tools:");
+  console.log("Registered MCP tools:");
   console.log("  - greeting: Say hello to authenticated users");
+  console.log("  - status: Server and user information");
 }, provider);
 
 app.use(mcpRouter);
 
-// Error handling middleware
-app.use((err: Error, _req: express.Request, res: express.Response) => {
-  console.error("Server error:", err);
-  res.status(500).json({
-    error: "Internal server error",
-    message: process.env.NODE_ENV === "development" ? err.message : undefined,
-  });
-});
+// Error handling middleware (must have 4 parameters)
+app.use(
+  (
+    err: Error,
+    _req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      message: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  },
+);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`🚀 MCP Express Example Server is running on port ${port}`);
-  console.log(`📋 Health check: http://localhost:${port}/health`);
-  console.log(`🔐 MCP endpoint: http://localhost:${port}/mcp`);
+  console.log(`MCP Express Example Server is running on port ${port}`);
+  console.log(`Health check: http://localhost:${port}/health`);
+  console.log(`MCP endpoint: http://localhost:${port}/mcp`);
   console.log(
-    `📜 OAuth metadata: http://localhost:${port}/.well-known/oauth-authorization-server`,
+    `OAuth metadata: http://localhost:${port}/.well-known/oauth-authorization-server`,
   );
   console.log(
-    `🛡️  Protected resource metadata: http://localhost:${port}/.well-known/oauth-protected-resource`,
+    `Protected resource metadata: http://localhost:${port}/.well-known/oauth-protected-resource`,
   );
 
   if (process.env.ENABLE_AUTH_SERVER === "true") {
-    console.log(
-      `🔑 Authorization endpoint: http://localhost:${port}/authorize`,
-    );
-    console.log(`📝 Client registration: http://localhost:${port}/register`);
+    console.log(`Authorization endpoint: http://localhost:${port}/authorize`);
+    console.log(`Client registration: http://localhost:${port}/register`);
   }
 
-  console.log("\n📖 Configuration:");
+  console.log("\nConfiguration:");
   console.log(`   Project ID: ${process.env.DESCOPE_PROJECT_ID || "NOT SET"}`);
   console.log(`   Server URL: ${process.env.SERVER_URL || "NOT SET"}`);
   console.log(`   Base URL: ${process.env.DESCOPE_BASE_URL || "DEFAULT"}`);

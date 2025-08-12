@@ -28,11 +28,12 @@ Enable Dynamic Client Registration (DCR) and configure scopes:
 2. Navigate to **Inbound App Settings**
 3. Enable **Dynamic client registration**
 
+Note: The example server uses `app.use(express.json())`. If you wire your own server, make sure to include JSON parsing so `/mcp` can read request bodies.
+
 ### 2. Run Example
 
 ```bash
-# From the main project directory
-npm run dev
+npm run dev:examples
 ```
 
 The server will start on `http://localhost:3000` with:

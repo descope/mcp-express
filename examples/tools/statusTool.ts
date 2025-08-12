@@ -6,9 +6,14 @@ import { defineTool } from "@descope/mcp-express";
  */
 export const statusTool = defineTool({
   name: "status",
-  description: "Get the current server status and user information",
+  description:
+    "Get the current server status, user information, and outbound token availability",
   scopes: ["openid"], // Basic authentication required
   handler: async (extra) => {
+    // Attempt to fetch an outbound token for an example app id
+    // Replace "example-app" and scopes with your configured outbound application details in Descope
+    const outboundToken = await extra.getOutboundToken("example-app", ["read"]);
+
     const status = {
       server: "running",
       timestamp: new Date().toISOString(),
@@ -16,7 +21,10 @@ export const statusTool = defineTool({
         clientId: extra.authInfo.clientId,
         scopes: extra.authInfo.scopes,
       },
-      hasOutboundToken: !!extra.getOutboundToken,
+      outboundTokenPresent: outboundToken != null,
+      outboundTokenPreview: outboundToken
+        ? `${outboundToken.slice(0, 12)}…`
+        : null,
     };
 
     return {

@@ -18,7 +18,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
     "watch": "tsc --watch",
     "dev": "concurrently \"pnpm run watch\" \"nodemon --watch build dist/index.js\"",
-    "dev:examples": "tsx examples/dev-server.js",
+    "dev:examples": "tsx examples/server.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "pnpm run lint --fix",
     "leaks": "bash ./scripts/gitleaks/gitleaks.sh",
@@ -67,7 +67,8 @@
     "supertest": "^7.1.0",
     "ts-jest": "^29.3.1",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.29.1"
+    "typescript-eslint": "^8.29.1",
+    "tsx": "^4.19.0"
   },
   "engines": {
     "node": ">=18"
