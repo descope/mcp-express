@@ -79,19 +79,17 @@ export async function getOutboundToken(
   scopes?: string[],
 ): Promise<string | null> {
   const userId = extractUserIdFromAuthInfo(authInfo);
-  const userToken = authInfo.token;
 
   try {
-    // Create authenticated Descope client
-    const descopeClient = createAuthenticatedDescopeClient(config, userToken);
+    const descopeClient = createAuthenticatedDescopeClient(
+      config,
+      authInfo.token,
+    );
+    const outbound = descopeClient.management.outboundApplication;
 
-    // Use the new outbound token exchange API from the next version
-    const result =
-      await descopeClient.management.outboundApplication.fetchTokenByScopes(
-        appId,
-        userId,
-        scopes || [],
-      );
+    const result = scopes?.length
+      ? await outbound.fetchTokenByScopes(appId, userId, scopes)
+      : await outbound.fetchToken(appId, userId);
 
     if (!result.ok) {
       console.error(
@@ -100,7 +98,8 @@ export async function getOutboundToken(
       );
       return null;
     }
-    return result.data?.accessToken || null;
+
+    return result.data?.accessToken ?? null;
   } catch (error) {
     console.error(
       "Outbound token exchange error:",
