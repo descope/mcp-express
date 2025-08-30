@@ -21,8 +21,8 @@ importers:
         specifier: 4.21.2
         version: 4.21.2
       zod:
-        specifier: 3.25.67
-        version: 3.25.67
+        specifier: 4.0.17
+        version: 4.0.17
     devDependencies:
       '@eslint/js':
         specifier: ^9.24.0
@@ -3566,6 +3566,9 @@ packages:
 
   zod@3.25.67:
     resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
+
+  zod@4.0.17:
+    resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
 snapshots:
 
@@ -7386,3 +7389,5 @@ snapshots:
       zod: 3.25.67
 
   zod@3.25.67: {}
+
+  zod@4.0.17: {}
