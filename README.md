@@ -20,6 +20,7 @@ Drop‑in Express middleware and helpers to add secure auth to your Model Contex
 - Migration from v0.0.x
 - Attribution
 - License
+ - Using @descope/mcp-core (low-level)
 
 ## Prerequisites
 
@@ -348,3 +349,129 @@ This SDK adapts code from the Model Context Protocol TypeScript SDK (MIT).
 ## License
 
 MIT
+
+## Using `@descope/mcp-core` (low-level)
+
+Prefer this when you only want primitives (scope helpers + outbound token exchange) and you are wiring your own transport (e.g. Next.js Route Handler, custom serverless function). You still can use `defineTool` ergonomics from `@descope/mcp-express` if desired, but below shows the bare metal form using `server.registerTool` exactly like the real example in `examples/nextjs`.
+
+### Install
+
+```bash
+npm install @descope/mcp-core
+```
+
+### Next.js Route (`app/mcp/route.ts`)
+
+```typescript
+import { createMcpHandler, withMcpAuth } from "@vercel/mcp-adapter";
+import DescopeClient from "@descope/node-sdk";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { type AuthInfo, DescopeConfig, createTokenManager, validateScopes } from "@descope/mcp-core";
+
+const descopeConfig: DescopeConfig = {
+  projectId: process.env.DESCOPE_PROJECT_ID || "",
+  baseUrl: process.env.DESCOPE_BASE_URL || "https://api.descope.com",
+};
+
+// Optional convenience wrapper (future caching spot)
+const tokenManager = createTokenManager(descopeConfig);
+
+// Reusable Descope validation client
+const client = DescopeClient({
+  projectId: descopeConfig.projectId,
+  baseUrl: descopeConfig.baseUrl,
+});
+
+// Register a tool directly
+const statusTool = (server: McpServer) =>
+  server.registerTool(
+    "status",
+    {
+      description: "Get server status, user authentication info, and outbound token availability",
+    },
+    async (args) => {
+      const authInfo = args.authInfo;
+
+      const scopesValidationRes = validateScopes(authInfo, ["openid"]);
+      if (!scopesValidationRes.isValid) {
+        console.error("Missing required scopes:", scopesValidationRes.error);
+        return null;
+      }
+
+      const outbound = await tokenManager.getOutboundToken(authInfo, "example-app", ["app:read"]);
+
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({ outboundPresent: !!outbound }, null, 2),
+          },
+        ],
+      };
+    },
+  );
+
+async function verifyToken(_req: Request, token?: string): Promise<AuthInfo | undefined> {
+  if (!token || !descopeConfig.projectId) return undefined;
+  const auth = await client.validateSession(token).catch(() => undefined);
+  if (!auth) return undefined;
+  const scope = auth.token.scope as string | undefined;
+  return {
+    token: auth.jwt,
+    clientId: auth.token.azp as string,
+    userId: (auth.token.sub || auth.token.userId || auth.token.azp) as string,
+    scopes: scope ? scope.split(" ").filter(Boolean) : [],
+    expiresAt: auth.token.exp as number,
+  };
+}
+
+// MCP handler with verbose logging (mirrors example)
+const mcpHandler = async (req: Request) =>
+  createMcpHandler(
+    (server: McpServer) => {
+      statusTool(server);
+    },
+    {
+      capabilities: {
+        tools: {
+          status: {
+            description: "Get server status, user authentication info, and outbound token availability",
+            requiresAuth: true,
+          },
+        },
+      },
+    },
+    { basePath: "", verboseLogs: true, maxDuration: 60 },
+  )(req);
+
+const handler = withMcpAuth(mcpHandler, verifyToken, {
+  required: true,
+  resourceMetadataPath: "/.well-known/oauth-protected-resource",
+});
+
+export { handler as GET, handler as POST, handler as DELETE };
+```
+
+### Protected Resource Metadata Route (`app/.well-known/oauth-protected-resource/route.ts`)
+
+```typescript
+import { protectedResourceHandler, metadataCorsOptionsRequestHandler } from "@vercel/mcp-adapter";
+
+const baseUrl = process.env.DESCOPE_BASE_URL || "https://api.descope.com";
+
+const handler = protectedResourceHandler({
+  authServerUrls: [`${baseUrl}/${process.env.DESCOPE_PROJECT_ID}`],
+});
+
+const optsHandler = metadataCorsOptionsRequestHandler();
+
+export { handler as GET, optsHandler as OPTIONS };
+```
+
+### Why choose core over express?
+
+- Smaller surface: only primitives (no Express router / metadata wiring)
+- Works in non-Express runtimes (Next.js, serverless, custom adapters)
+- Full control over registration and auth wiring
+
+Pick `@descope/mcp-express` for fastest onboarding; reach for `@descope/mcp-core` when you need fine-grained control.
