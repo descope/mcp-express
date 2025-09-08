@@ -34,7 +34,6 @@ export async function getOutboundToken(
   config: DescopeConfig,
   scopes?: string[],
 ): Promise<string | null> {
-  console.log("Getting outbound token for app:", appId, "with scopes:", scopes);
   if (!authInfo?.token) {
     return null;
   }
