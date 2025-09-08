@@ -136,4 +136,3 @@ The Next.js example also includes a protected resource metadata route at:
 `examples/nextjs/app/.well-known/oauth-protected-resource/route.ts`
 
 It publishes OAuth 2.0 Protected Resource Metadata (RFC 8705) required by compliant MCP agents.
-

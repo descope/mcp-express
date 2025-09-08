@@ -9,7 +9,7 @@ export {
   hasAllScopes,
 } from "./scopes.js";
 
-// Outbound token utilities  
+// Outbound token utilities
 export {
   getOutboundToken,
   createTokenManager,

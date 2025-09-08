@@ -26,12 +26,19 @@ describe("Outbound Token Utilities", () => {
 
   describe("getOutboundToken", () => {
     it("should return token on successful exchange", async () => {
-      mockFetch.mockResolvedValueOnce(new Response(
-        JSON.stringify({ access_token: "outbound-token" }),
-        { status: 200, statusText: "OK" }
-      ));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ access_token: "outbound-token" }), {
+          status: 200,
+          statusText: "OK",
+        }),
+      );
 
-      const result = await getOutboundToken("app-id", mockAuthInfo, mockConfig, ["read"]);
+      const result = await getOutboundToken(
+        "app-id",
+        mockAuthInfo,
+        mockConfig,
+        ["read"],
+      );
 
       expect(result).toBe("outbound-token");
       expect(mockFetch).toHaveBeenCalledWith(
@@ -40,17 +47,19 @@ describe("Outbound Token Utilities", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer test-project",
+            Authorization: "Bearer test-project",
           },
-        })
+        }),
       );
     });
 
     it("should return null on failed exchange", async () => {
-      mockFetch.mockResolvedValueOnce(new Response(null, { 
-        status: 400, 
-        statusText: "Bad Request" 
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(null, {
+          status: 400,
+          statusText: "Bad Request",
+        }),
+      );
 
       const result = await getOutboundToken("app-id", mockAuthInfo, mockConfig);
 
@@ -62,12 +71,16 @@ describe("Outbound Token Utilities", () => {
     it("should create token manager and get outbound token", async () => {
       const manager = createTokenManager(mockConfig);
 
-      mockFetch.mockResolvedValueOnce(new Response(
-        JSON.stringify({ access_token: "manager-token" }),
-        { status: 200, statusText: "OK" }
-      ));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ access_token: "manager-token" }), {
+          status: 200,
+          statusText: "OK",
+        }),
+      );
 
-      const result = await manager.getOutboundToken(mockAuthInfo, "app-id", ["read"]);
+      const result = await manager.getOutboundToken(mockAuthInfo, "app-id", [
+        "read",
+      ]);
 
       expect(result).toBe("manager-token");
     });

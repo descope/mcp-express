@@ -14,13 +14,13 @@ npm install @descope/mcp-core
 
 ## Exports
 
-| Export | Purpose |
-| ------ | ------- |
-| `AuthInfo` | Shape of authenticated user/session data you pass into tools |
-| `validateScopes`, `hasScope`, `hasAnyScope`, `hasAllScopes` | Scope validation helpers |
-| `getOutboundToken` | Perform a user-bound token exchange for an outbound application |
-| `createTokenManager`, `DescopeTokenManager` | Convenience wrapper to reuse config & add future caching |
-| `DescopeConfig` | Configuration for outbound exchange (project + optional base URL) |
+| Export                                                      | Purpose                                                           |
+| ----------------------------------------------------------- | ----------------------------------------------------------------- |
+| `AuthInfo`                                                  | Shape of authenticated user/session data you pass into tools      |
+| `validateScopes`, `hasScope`, `hasAnyScope`, `hasAllScopes` | Scope validation helpers                                          |
+| `getOutboundToken`                                          | Perform a user-bound token exchange for an outbound application   |
+| `createTokenManager`, `DescopeTokenManager`                 | Convenience wrapper to reuse config & add future caching          |
+| `DescopeConfig`                                             | Configuration for outbound exchange (project + optional base URL) |
 
 ## Quick Example (Next.js Route)
 
@@ -43,9 +43,7 @@ const statusTool = defineTool({
   name: "status",
   scopes: ["openid"],
   handler: async (extra) => {
-    const outbound = extra.authInfo
-      ? await getOutboundToken("example-app", extra.authInfo, descopeConfig, ["read"])
-      : null;
+    const outbound = extra.authInfo ? await getOutboundToken("example-app", extra.authInfo, descopeConfig, ["read"]) : null;
     return {
       content: [{ type: "text", text: JSON.stringify({ ok: true, outboundPresent: !!outbound }) }],
     };
@@ -67,6 +65,7 @@ const token = await getOutboundToken(
   ["read", "write"],
 );
 ```
+
 Returns the exchanged access token string or `null` if exchange fails.
 
 ### Using the Token Manager
@@ -77,7 +76,9 @@ import { createTokenManager } from "@descope/mcp-core";
 const manager = createTokenManager({ projectId: process.env.DESCOPE_PROJECT_ID! });
 const token = await manager.getOutboundToken(authInfo, "downstream-app-id", ["read"]);
 ```
+
 Why use it?
+
 - Central place to add caching later
 - Reuse configuration without re-passing it
 - Consistent null-on-miss behavior
@@ -96,11 +97,14 @@ if (hasAnyScope(authInfo, ["admin", "editor"])) {
 ```
 
 ## Error Handling & Null Semantics
+
 - `getOutboundToken` and the token manager return `null` on any failure (missing auth, config mismatch, API failure)
 - Your tools decide whether to treat `null` as recoverable or fatal
 
 ## When to Use @descope/mcp-express Instead
+
 Choose `@descope/mcp-express` if you want:
+
 - Automatic Express router with `/mcp` + metadata endpoints
 - Built-in auth middleware & request context injection
 - `defineTool` & `registerAuthenticatedTool` convenience APIs
@@ -108,4 +112,5 @@ Choose `@descope/mcp-express` if you want:
 Use `@descope/mcp-core` when you only need foundational primitives and will wire transport + auth yourself.
 
 ## License
+
 MIT

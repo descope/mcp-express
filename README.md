@@ -20,7 +20,7 @@ Drop‑in Express middleware and helpers to add secure auth to your Model Contex
 - Migration from v0.0.x
 - Attribution
 - License
- - Using @descope/mcp-core (low-level)
+- Using @descope/mcp-core (low-level)
 
 ## Prerequisites
 

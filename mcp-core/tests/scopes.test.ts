@@ -1,9 +1,14 @@
-import { validateScopes, hasScope, hasAnyScope, hasAllScopes } from "../src/index.js";
+import {
+  validateScopes,
+  hasScope,
+  hasAnyScope,
+  hasAllScopes,
+} from "../src/index.js";
 import type { AuthInfo } from "../src/index.js";
 
 const mockAuthInfo: AuthInfo = {
   token: "test-token",
-  clientId: "test-client", 
+  clientId: "test-client",
   userId: "test-user",
   scopes: ["openid", "profile", "email"],
   expiresAt: Date.now() + 3600000,
