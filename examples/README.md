@@ -75,14 +75,15 @@ This example demonstrates the core functionality of the `@descope/mcp-express` S
 
 ## Next.js (Route Handler) Example
 
-An example Next.js MCP route is provided under `examples/nextjs/app/api/mcp/route.ts`.
+An example Next.js MCP route is provided under `examples/nextjs/app/mcp/route.ts` (note: no `api/` segment). It uses low-level registration (`server.registerTool`) mirroring how you would integrate with `@descope/mcp-core` primitives.
 
 ### Features
 
-- Single API route exposing MCP tools over HTTP
+- Single route exposing MCP tools over HTTP
 - `withMcpAuth` wrapper for bearer token validation
-- `defineTool` based tool registration (`status` tool)
-- Optional outbound token exchange using the authenticated user's access token
+- Direct `server.registerTool` usage (not `defineTool`) for the `status` tool
+- Outbound token exchange attempt via a token manager (`example-app` audience)
+- Separate protected resource metadata route at `examples/nextjs/app/.well-known/oauth-protected-resource/route.ts`
 
 ### Environment Variables
 
@@ -95,27 +96,25 @@ DESCOPE_BASE_URL=https://api.descope.com
 
 ### Status Tool
 
-The `status` tool returns:
+The `status` tool (in the Next.js example) validates the caller has the `openid` scope, then attempts an outbound token exchange for audience `example-app` with scope `app:read`. Its raw return payload is the serialized outbound token result (or `null`) – intentionally minimal so you can shape your own response.
+
+Example successful (truncated) response body content:
 
 ```json
 {
-  "server": "running",
-  "timestamp": "2025-01-01T00:00:00.000Z",
-  "authenticatedUser": {
-    "clientId": "...",
-    "scopes": ["openid"]
-  },
-  "outboundTokenPresent": true,
-  "outboundTokenPreview": "eyJhbGciOi..."
+  "access_token": "eyJhbGciOi...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "app:read"
 }
 ```
 
-Anonymous calls return the same object with `authenticatedUser` null and no outbound token.
+If the user lacks required scopes or the exchange fails, the tool returns `null`.
 
 ### Calling the Status Tool
 
 ```bash
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -128,7 +127,13 @@ curl -X POST http://localhost:3000/api/mcp \
 
 ### Outbound Token Exchange
 
-The example attempts an outbound token exchange using audience `example-app`. Replace this string with an outbound application ID configured in your Descope project. Remove or modify scopes as required.
+Replace `example-app` with an outbound application ID configured in your Descope project. Adjust scopes (`["app:read"]`) as required. A `null` result means exchange failed or user/session invalid; decide whether to treat that as soft or hard failure.
 
-If outbound exchange fails (missing config, invalid audience, etc.), the tool continues and simply returns `outboundTokenPresent: false`.
+### Protected Resource Metadata Route
+
+The Next.js example also includes a protected resource metadata route at:
+
+`examples/nextjs/app/.well-known/oauth-protected-resource/route.ts`
+
+It publishes OAuth 2.0 Protected Resource Metadata (RFC 8705) required by compliant MCP agents.
 
