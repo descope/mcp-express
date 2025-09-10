@@ -39,7 +39,7 @@
     "@descope/node-sdk": "^1.7.11",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "express": "4.21.2",
-    "zod": "3.25.67"
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
@@ -55,7 +55,7 @@
     "@types/supertest": "^6.0.3",
     "concurrently": "^9.1.2",
     "cors": "2.8.5",
-    "dotenv": "16.6.1",
+    "dotenv": "17.2.1",
     "eslint": "^9.32.0",
     "express-rate-limit": "8.0.1",
     "globals": "^16.0.0",
@@ -73,7 +73,7 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "publishConfig": {
     "access": "public"
   },
