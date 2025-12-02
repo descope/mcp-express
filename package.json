@@ -38,7 +38,7 @@
   "dependencies": {
     "@descope/node-sdk": "^1.7.11",
     "@modelcontextprotocol/sdk": "^1.15.1",
-    "express": "5.2.0",
+    "express": "4.22.1",
     "zod": "3.25.76"
   },
   "devDependencies": {
