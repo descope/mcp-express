@@ -15,7 +15,7 @@ importers:
         specifier: ^1.7.11
         version: 1.7.11
       '@modelcontextprotocol/sdk':
-        specifier: ^1.15.1
+        specifier: ^1.24.0
         version: 1.24.0(zod@3.25.76)
       express:
         specifier: 4.22.1
