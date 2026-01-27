@@ -3,3 +3,10 @@ dist/
 *.log
 .env
 .env.local
+.next/
+next-env.d.ts
+next-env.js
+.vscode/
+.DS_Store
+.idea/
+coverage/
