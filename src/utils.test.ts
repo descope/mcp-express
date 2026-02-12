@@ -74,7 +74,7 @@ describe("utils", () => {
         "test_tool",
         expect.objectContaining({
           description: "Test tool",
-          inputSchema: expect.objectContaining({ input: expect.any(Object) }),
+          inputSchema: expect.any(Object), // Now it's a ZodObject
         }),
         expect.any(Function),
       );
