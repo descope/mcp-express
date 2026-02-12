@@ -54,7 +54,7 @@
     "@types/superagent": "^8.1.9",
     "@types/supertest": "^6.0.3",
     "concurrently": "^9.1.2",
-    "cors": "2.8.5",
+    "cors": "2.8.6",
     "dotenv": "17.2.3",
     "eslint": "^9.32.0",
     "express-rate-limit": "8.2.1",
