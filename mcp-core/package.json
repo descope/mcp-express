@@ -1,0 +1,46 @@
+{
+  "name": "@descope/mcp-core",
+  "version": "0.1.0",
+  "description": "Core utilities for Descope MCP authentication - outbound tokens and scope validation",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pnpm run build:esm && pnpm run build:cjs",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "clean": "rm -rf dist/"
+  },
+  "keywords": [
+    "descope",
+    "mcp",
+    "authentication",
+    "outbound-tokens",
+    "oauth",
+    "scopes"
+  ],
+  "author": "Descope",
+  "license": "MIT",
+  "dependencies": {
+    "@descope/node-sdk": "^1.7.11"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.8.3"
+  }
+}
