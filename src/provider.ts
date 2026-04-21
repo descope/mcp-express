@@ -1,5 +1,6 @@
 import { DescopeMcpProviderOptions } from "./schemas/options.js";
 import DescopeClient from "@descope/node-sdk";
+import { IssuerTokenValidator } from "./utils/tokenValidator.js";
 
 /**
  * Read an environment variable.
@@ -102,25 +103,97 @@ const API_PATHS = {
   AUTHORIZATION: "/oauth2/v1/apps/authorize",
 } as const;
 
+/**
+ * Information derived from a full OAuth issuer URL.
+ */
+interface DerivedIssuerInfo {
+  /** Origin of the issuer, e.g. `https://api.descope.com` */
+  baseUrl: string;
+  /** Descope project ID, extracted from the issuer path if possible */
+  projectId?: string;
+  /** MCP server ID, extracted from the issuer path if present (agentic format) */
+  mcpServerId?: string;
+}
+
+/**
+ * Pattern that matches a Descope project ID (starts with `P` followed by a
+ * digit, then 20+ base62 characters).
+ */
+const PROJECT_ID_PATTERN = /^P\d[A-Za-z0-9]{20,}$/;
+
+/**
+ * Pattern that matches a Descope MCP / agentic server ID (starts with `MS`
+ * followed by 20+ base62 characters).
+ */
+const MCP_SERVER_ID_PATTERN = /^MS[A-Za-z0-9]{20,}$/;
+
+/**
+ * Derives `baseUrl` and Descope identifiers from a full issuer URL. Supports
+ * both the legacy Inbound App format (`/v1/apps/<projectId>`) and the newer
+ * Agentic / MCP format (`/v1/apps/agentic/<projectId>/<mcpServerId>`).
+ */
+function deriveFromIssuer(issuer: string): DerivedIssuerInfo {
+  let parsed: URL;
+  try {
+    parsed = new URL(issuer);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid issuer URL '${issuer}': ${message}`);
+  }
+
+  const segments = parsed.pathname.split("/").filter(Boolean);
+
+  // Prefer segments that match the Descope project ID / MCP server ID
+  // patterns, so positional differences between formats don't matter.
+  const projectId = segments.find((segment) =>
+    PROJECT_ID_PATTERN.test(segment),
+  );
+  const mcpServerId = segments.find((segment) =>
+    MCP_SERVER_ID_PATTERN.test(segment),
+  );
+
+  return {
+    baseUrl: `${parsed.protocol}//${parsed.host}`,
+    projectId: projectId ?? (segments.length > 0 ? segments[segments.length - 1] : undefined),
+    mcpServerId,
+  };
+}
+
 export class DescopeMcpProvider {
   readonly descope: ReturnType<typeof DescopeClient>;
   readonly projectId: string;
   readonly managementKey?: string;
   readonly baseUrl: string;
   readonly serverUrl: string;
+  readonly issuer: string;
+  readonly mcpServerId?: string;
   readonly descopeOAuthEndpoints: DescopeEndpoints;
+  readonly tokenValidator: IssuerTokenValidator;
   private readonly _options: DescopeMcpProviderOptions;
 
   constructor({
+    issuer = readEnv("DESCOPE_MCP_SERVER_ISSUER"),
     projectId = readEnv("DESCOPE_PROJECT_ID"),
     managementKey = readEnv("DESCOPE_MANAGEMENT_KEY"),
     baseUrl = readEnv("DESCOPE_BASE_URL"),
     serverUrl = readEnv("SERVER_URL"),
     ...opts
   }: DescopeMcpProviderOptions = {}) {
+    // When a full issuer URL is supplied, derive projectId/baseUrl from it
+    // so callers only have to paste a single value.
+    let derived: DerivedIssuerInfo | undefined;
+    if (issuer) {
+      derived = deriveFromIssuer(issuer);
+      projectId = projectId || derived.projectId;
+      baseUrl = baseUrl || derived.baseUrl;
+    }
+    this.mcpServerId = derived?.mcpServerId;
+
     // Validate required parameters
     if (!projectId) {
-      throw new Error("DESCOPE_PROJECT_ID is not set.");
+      throw new Error(
+        "DESCOPE_PROJECT_ID (or DESCOPE_MCP_SERVER_ISSUER) is not set.",
+      );
     }
     if (!serverUrl) {
       throw new Error("SERVER_URL is not set.");
@@ -141,7 +214,11 @@ export class DescopeMcpProvider {
     this.projectId = projectId;
     this.managementKey = managementKey;
 
-    // Initialize options with defaults
+    // Initialize endpoints and resolved issuer
+    this.descopeOAuthEndpoints = this.initializeOAuthEndpoints();
+    this.issuer = issuer || this.descopeOAuthEndpoints.issuer.href;
+
+    // Initialize options with defaults (stores the resolved issuer too)
     this._options = this.initializeOptions(opts);
 
     // Initialize Descope client
@@ -151,14 +228,19 @@ export class DescopeMcpProvider {
       ...(this.managementKey && { managementKey: this.managementKey }),
     });
 
-    // Initialize endpoints
-    this.descopeOAuthEndpoints = this.initializeOAuthEndpoints();
+    // Initialize issuer-based JWT validator (uses OIDC discovery for JWKS).
+    // This handles MCP-server-issued tokens correctly, including the
+    // agentic `/v1/apps/agentic/<projectId>/<mcpServerId>` issuer format.
+    this.tokenValidator = new IssuerTokenValidator(
+      this.issuer,
+      this._options.jwksUri,
+    );
   }
 
   private initializeOptions(
     opts: Omit<
       DescopeMcpProviderOptions,
-      "projectId" | "managementKey" | "baseUrl" | "serverUrl"
+      "issuer" | "projectId" | "managementKey" | "baseUrl" | "serverUrl"
     >,
   ): DescopeMcpProviderOptions {
     const dynamicClientRegistrationOptions = {
@@ -169,6 +251,7 @@ export class DescopeMcpProvider {
     };
 
     return {
+      issuer: this.issuer,
       projectId: this.projectId,
       managementKey: this.managementKey,
       serverUrl: this.serverUrl,
@@ -196,6 +279,18 @@ export class DescopeMcpProvider {
     Object.values(endpoints).forEach(UrlBuilder.validate);
 
     return endpoints;
+  }
+
+  /**
+   * The URL of the protected resource (MCP endpoint) that is surfaced in the
+   * Protected Resource Metadata. Defaults to `${serverUrl}/mcp` if not
+   * explicitly configured via `options.resource`.
+   */
+  get resourceUrl(): string {
+    if (this._options.resource) {
+      return this._options.resource;
+    }
+    return UrlBuilder.construct(this.serverUrl, "mcp").href.replace(/\/$/, "");
   }
 
   get options(): DescopeMcpProviderOptions {

@@ -6,6 +6,8 @@ import { DescopeMcpProvider } from "../provider.js";
 // Mock the DescopeMcpProvider
 const mockProvider = {
   serverUrl: "https://mcp-server.example.com",
+  resourceUrl: "https://mcp-server.example.com/mcp",
+  issuer: "https://api.descope.com/v1/apps/test-project",
   descopeOAuthEndpoints: {
     issuer: new URL("https://api.descope.com/v1/apps/test-project"),
   },
@@ -39,7 +41,7 @@ describe("protectedResourceHandler", () => {
       .expect("Content-Type", /json/);
 
     expect(response.body).toEqual({
-      resource: "https://mcp-server.example.com",
+      resource: "https://mcp-server.example.com/mcp",
       authorization_servers: ["https://api.descope.com/v1/apps/test-project"],
       scopes_supported: ["openid", "profile", "email", "admin"],
       bearer_methods_supported: ["header"],
@@ -70,6 +72,8 @@ describe("protectedResourceHandler", () => {
   it("should work without optional configuration", async () => {
     const minimalProvider = {
       serverUrl: "https://mcp-server.example.com",
+      resourceUrl: "https://mcp-server.example.com/mcp",
+      issuer: "https://api.descope.com/v1/apps/test-project",
       descopeOAuthEndpoints: {
         issuer: new URL("https://api.descope.com/v1/apps/test-project"),
       },
@@ -87,10 +91,43 @@ describe("protectedResourceHandler", () => {
       .expect(200);
 
     expect(response.body).toEqual({
-      resource: "https://mcp-server.example.com",
+      resource: "https://mcp-server.example.com/mcp",
       authorization_servers: ["https://api.descope.com/v1/apps/test-project"],
       scopes_supported: ["openid"],
       bearer_methods_supported: ["header"],
+    });
+  });
+
+  it("should honor explicit scopesSupported and resource overrides", async () => {
+    const customProvider = {
+      serverUrl: "https://mcp-server.example.com",
+      resourceUrl: "https://mcp-server.example.com/mcp",
+      issuer: "https://issuer.example.com/v1/apps/custom",
+      descopeOAuthEndpoints: {
+        issuer: new URL("https://api.descope.com/v1/apps/should-be-ignored"),
+      },
+      options: {
+        scopesSupported: ["openid", "calendar:read", "calendar:write"],
+        serviceDocumentationUrl: "https://mcp-server.example.com/docs",
+      },
+    } as DescopeMcpProvider;
+
+    const customApp = express();
+    customApp.use(
+      "/.well-known/oauth-protected-resource",
+      protectedResourceHandler(customProvider),
+    );
+
+    const response = await request(customApp)
+      .get("/.well-known/oauth-protected-resource")
+      .expect(200);
+
+    expect(response.body).toEqual({
+      resource: "https://mcp-server.example.com/mcp",
+      authorization_servers: ["https://issuer.example.com/v1/apps/custom"],
+      scopes_supported: ["openid", "calendar:read", "calendar:write"],
+      bearer_methods_supported: ["header"],
+      resource_documentation: "https://mcp-server.example.com/docs",
     });
   });
 });

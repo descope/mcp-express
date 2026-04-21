@@ -59,26 +59,30 @@ async function verifyAccessToken(
   token: string,
   provider: DescopeMcpProvider,
 ): Promise<AuthInfo> {
-  // First validate the token with Descope
-  const authInfo = await provider.descope.validateSession(token).catch(() => {
+  // Verify the JWT against the issuer's JWKS. This works for tokens issued
+  // by Descope MCP servers (agentic format) as well as classic Inbound Apps.
+  const authInfo = await provider.tokenValidator.validate(token).catch(() => {
     throw new InvalidTokenError("Failed to validate token");
   });
 
   // Validate audience if specified
   const audience = provider.options.verifyTokenOptions?.audience;
-  if (audience) {
+  if (audience && audience.length > 0) {
     const tokenAudience = authInfo.token.aud;
     if (!tokenAudience) {
       throw new InvalidTokenError("Token missing audience claim");
     }
 
-    const hasValidAudience = Array.isArray(tokenAudience)
-      ? tokenAudience.includes(audience)
-      : tokenAudience === audience;
+    const tokenAudiences = Array.isArray(tokenAudience)
+      ? tokenAudience
+      : [tokenAudience];
+    const hasValidAudience = audience.some((expected) =>
+      tokenAudiences.includes(expected),
+    );
 
     if (!hasValidAudience) {
       throw new InvalidTokenError(
-        `Invalid token audience. Expected: ${audience}`,
+        `Invalid token audience. Expected one of: ${audience.join(", ")}`,
       );
     }
   }
@@ -126,7 +130,13 @@ async function verifyAccessToken(
     }
   }
 
-  const clientId = authInfo.token.azp as string;
+  // Prefer `azp` (authorized party) per OIDC; fall back to `client_id` or
+  // `sub` which are commonly set on OAuth access tokens.
+  const clientId =
+    (authInfo.token.azp as string | undefined) ??
+    (authInfo.token.client_id as string | undefined) ??
+    (authInfo.token.sub as string | undefined) ??
+    "";
 
   return AuthInfoSchema.parse({
     token: authInfo.jwt,

@@ -7,22 +7,30 @@ import { DescopeMcpProvider } from "../provider.js";
 export function protectedResourceHandler(
   provider: DescopeMcpProvider,
 ): RequestHandler {
-  const serverUrl = provider.serverUrl;
-  const authorizationServer = provider.descopeOAuthEndpoints.issuer.href;
+  // The issuer is resolved by the provider: either a caller-supplied full URL
+  // (e.g. via DESCOPE_MCP_SERVER_ISSUER) or one derived from projectId + baseUrl.
+  const authorizationServer =
+    provider.issuer ?? provider.descopeOAuthEndpoints.issuer.href;
 
-  // Build scopes from configured attribute and permission scopes
-  const attributeScopes =
-    provider.options.dynamicClientRegistrationOptions?.attributeScopes?.map(
-      (scope) => scope.name,
-    ) ?? [];
-  const permissionScopes =
-    provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(
-      (scope) => scope.name,
-    ) ?? [];
-  const scopes_supported = ["openid", ...attributeScopes, ...permissionScopes];
+  // Explicit scopesSupported takes precedence; otherwise derive from DCR config
+  // for backwards compatibility (includes the implicit "openid" scope).
+  let scopes_supported: string[];
+  if (provider.options.scopesSupported) {
+    scopes_supported = provider.options.scopesSupported;
+  } else {
+    const attributeScopes =
+      provider.options.dynamicClientRegistrationOptions?.attributeScopes?.map(
+        (scope) => scope.name,
+      ) ?? [];
+    const permissionScopes =
+      provider.options.dynamicClientRegistrationOptions?.permissionScopes?.map(
+        (scope) => scope.name,
+      ) ?? [];
+    scopes_supported = ["openid", ...attributeScopes, ...permissionScopes];
+  }
 
   const metadata: ProtectedResourceMetadata = {
-    resource: serverUrl,
+    resource: provider.resourceUrl,
     authorization_servers: [authorizationServer],
     scopes_supported,
     bearer_methods_supported: ["header"],

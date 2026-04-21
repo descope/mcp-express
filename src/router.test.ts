@@ -78,7 +78,7 @@ describe("descopeMcpAuthRouter", () => {
       expect(response.body).toHaveProperty("authorization_servers");
       expect(response.body).toHaveProperty("scopes_supported");
       expect(response.body).toHaveProperty("bearer_methods_supported");
-      expect(response.body.resource).toBe("https://test.example.com");
+      expect(response.body.resource).toBe("https://test.example.com/mcp");
     });
   });
 

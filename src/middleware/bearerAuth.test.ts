@@ -7,12 +7,12 @@ import { DescopeMcpProvider } from "../provider.js";
 // Mock the DescopeMcpProvider
 const mockProvider = {
   serverUrl: "https://mcp-server.example.com",
-  descope: {
-    validateSession: jest.fn(),
+  tokenValidator: {
+    validate: jest.fn(),
   },
   options: {
     verifyTokenOptions: {
-      audience: "test-audience",
+      audience: ["test-audience"],
       requiredScopes: ["openid"],
     },
   },
@@ -58,7 +58,7 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should include resource_metadata in WWW-Authenticate header on insufficient scope", async () => {
     // Mock successful token validation but insufficient scopes
-    (mockProvider.descope.validateSession as jest.Mock).mockResolvedValue({
+    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
@@ -72,7 +72,7 @@ describe("descopeMcpBearerAuth", () => {
       ...mockProvider,
       options: {
         verifyTokenOptions: {
-          audience: "test-audience",
+          audience: ["test-audience"],
           requiredScopes: ["openid", "admin"], // Require admin scope
         },
       },
@@ -98,7 +98,7 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should succeed with valid token and sufficient scopes", async () => {
     // Mock successful token validation
-    (mockProvider.descope.validateSession as jest.Mock).mockResolvedValue({
+    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
@@ -118,7 +118,7 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should validate resource indicator when configured", async () => {
     // Mock successful token validation with resource claim
-    (mockProvider.descope.validateSession as jest.Mock).mockResolvedValue({
+    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
@@ -133,7 +133,7 @@ describe("descopeMcpBearerAuth", () => {
       ...mockProvider,
       options: {
         verifyTokenOptions: {
-          audience: "test-audience",
+          audience: ["test-audience"],
           requiredScopes: ["openid"],
           resourceIndicator: "https://mcp-server.example.com",
         },

@@ -88,6 +88,19 @@ export const AuthorizationServerOptionsSchema = z.object({
  * Configuration options for the Descope MCP SDK.
  */
 export const DescopeMcpProviderOptionsSchema = z.object({
+  /**
+   * Full OAuth issuer URL of the authorization server used to protect this
+   * MCP server (e.g. a Descope Inbound App issuer like
+   * `https://api.descope.com/v1/apps/<projectId>`).
+   *
+   * When provided, this is used directly as the `authorization_servers` entry
+   * in the Protected Resource Metadata, and `projectId` / `baseUrl` are
+   * auto-derived from it for bearer token validation.
+   *
+   * Reads from the `DESCOPE_MCP_SERVER_ISSUER` environment variable by default.
+   */
+  issuer: z.string().optional(),
+
   /** The Descope project ID */
   projectId: z.string().optional(),
 
@@ -102,6 +115,29 @@ export const DescopeMcpProviderOptionsSchema = z.object({
 
   /** The Descope base URL if a custom domain is set */
   baseUrl: z.string().optional(),
+
+  /**
+   * The full URL of the protected resource (i.e. the MCP endpoint). Used as
+   * the `resource` value in Protected Resource Metadata (RFC 9728).
+   *
+   * Defaults to `${serverUrl}/mcp`.
+   */
+  resource: z.string().optional(),
+
+  /**
+   * URL of the JWKS endpoint used to verify MCP access tokens. When unset,
+   * it's discovered from `${issuer}/.well-known/openid-configuration`.
+   */
+  jwksUri: z.string().optional(),
+
+  /**
+   * List of OAuth scopes supported by this MCP server. Surfaced in the
+   * `scopes_supported` field of the Protected Resource Metadata.
+   *
+   * If set, this overrides scopes derived from
+   * `dynamicClientRegistrationOptions`.
+   */
+  scopesSupported: z.array(z.string()).optional(),
 
   /** Options for dynamic client registration */
   dynamicClientRegistrationOptions:

@@ -23,7 +23,7 @@ describe("DescopeMcpProvider", () => {
             managementKey: "test-key",
             serverUrl: "https://test.example.com",
           }),
-      ).toThrow("DESCOPE_PROJECT_ID is not set.");
+      ).toThrow("DESCOPE_PROJECT_ID (or DESCOPE_MCP_SERVER_ISSUER) is not set.");
     });
 
     it("should not require managementKey by default", () => {
@@ -71,6 +71,64 @@ describe("DescopeMcpProvider", () => {
 
       expect(provider.baseUrl).toBe("https://custom.descope.com");
     });
+
+    it("should derive projectId and baseUrl from a classic issuer URL", () => {
+      const provider = new DescopeMcpProvider({
+        issuer:
+          "https://api.descope.com/v1/apps/P2v9EBlmO4XTrOwMRfsY1jeUONxU",
+        serverUrl: "https://test.example.com",
+      });
+
+      expect(provider.projectId).toBe("P2v9EBlmO4XTrOwMRfsY1jeUONxU");
+      expect(provider.baseUrl).toBe("https://api.descope.com");
+      expect(provider.issuer).toBe(
+        "https://api.descope.com/v1/apps/P2v9EBlmO4XTrOwMRfsY1jeUONxU",
+      );
+      expect(provider.mcpServerId).toBeUndefined();
+    });
+
+    it("should derive projectId and mcpServerId from an agentic issuer URL", () => {
+      const provider = new DescopeMcpProvider({
+        issuer:
+          "https://api.descope.com/v1/apps/agentic/P2v9EBlmO4XTrOwMRfsY1jeUONxU/MS37N1EnKXeJzg1OGrkvLgkcBZkqp",
+        serverUrl: "https://test.example.com",
+      });
+
+      expect(provider.projectId).toBe("P2v9EBlmO4XTrOwMRfsY1jeUONxU");
+      expect(provider.mcpServerId).toBe("MS37N1EnKXeJzg1OGrkvLgkcBZkqp");
+      expect(provider.baseUrl).toBe("https://api.descope.com");
+    });
+
+    it("should prefer explicit projectId over issuer-derived one", () => {
+      const provider = new DescopeMcpProvider({
+        issuer: "https://api.descope.com/v1/apps/P2fromIssuer",
+        projectId: "P2explicit",
+        serverUrl: "https://test.example.com",
+      });
+
+      expect(provider.projectId).toBe("P2explicit");
+    });
+
+    it("should throw a clear error when issuer is malformed", () => {
+      expect(
+        () =>
+          new DescopeMcpProvider({
+            issuer: "not a url",
+            serverUrl: "https://test.example.com",
+          }),
+      ).toThrow(/Invalid issuer URL/);
+    });
+
+    it("should fall back to projectId-derived issuer when issuer is not supplied", () => {
+      const provider = new DescopeMcpProvider({
+        projectId: "test-project",
+        serverUrl: "https://test.example.com",
+      });
+
+      expect(provider.issuer).toBe(
+        "https://api.descope.com/v1/apps/test-project",
+      );
+    });
   });
 
   describe("OAuth endpoints", () => {
@@ -110,6 +168,27 @@ describe("DescopeMcpProvider", () => {
 
       // Should not throw an error
       expect(() => localProvider.descopeOAuthEndpoints).not.toThrow();
+    });
+  });
+
+  describe("resourceUrl", () => {
+    it("should default to ${serverUrl}/mcp", () => {
+      const provider = new DescopeMcpProvider({
+        projectId: "test-project",
+        serverUrl: "https://test.example.com",
+      });
+
+      expect(provider.resourceUrl).toBe("https://test.example.com/mcp");
+    });
+
+    it("should respect an explicit resource override", () => {
+      const provider = new DescopeMcpProvider({
+        projectId: "test-project",
+        serverUrl: "https://test.example.com",
+        resource: "https://test.example.com/custom/mcp",
+      });
+
+      expect(provider.resourceUrl).toBe("https://test.example.com/custom/mcp");
     });
   });
 

@@ -30,17 +30,19 @@ npm install @descope/mcp-express
 
 ## Quick Start
 
-1. Get your Project ID from the [Descope Console](https://app.descope.com/settings/project)
+1. Grab the **OAuth issuer URL** of your Descope MCP server / Inbound App from the [Descope Console](https://app.descope.com/). It looks like:
+
+   - Agentic / MCP format: `https://api.descope.com/v1/apps/agentic/<projectId>/<mcpServerId>`
+   - Classic Inbound App format: `https://api.descope.com/v1/apps/<projectId>`
 
 2. Create a `.env` file in your project root:
 
 ```bash
-DESCOPE_PROJECT_ID=your_project_id
+DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<projectId>/<mcpServerId>
 SERVER_URL=your_mcp_server_url
 ```
 
-> The `SERVER_URL` is the URL of your MCP Server.
-> eg. `http://localhost:3000` or `https://mcp.example.com`
+> `SERVER_URL` is the public URL of your MCP server, e.g. `http://localhost:3000` or `https://mcp.example.com`. Project ID and base URL are auto-derived from the issuer URL.
 
 3. Ensure that the environment variables are loaded, for example by using `dotenv`:
 
@@ -62,6 +64,15 @@ import { z } from "zod";
 
 const app = express();
 
+const provider = new DescopeMcpProvider({
+  // Paste the OAuth issuer URL of your Descope MCP server / Inbound App.
+  // Reads from DESCOPE_MCP_SERVER_ISSUER by default.
+  issuer: process.env.DESCOPE_MCP_SERVER_ISSUER,
+  serverUrl: process.env.SERVER_URL,
+  // Scopes surfaced in /.well-known/oauth-protected-resource.
+  scopesSupported: ["openid", "profile", "email"],
+});
+
 // Optional: Define MCP tools with authentication
 const helloTool = registerAuthenticatedTool({
   name: "hello",
@@ -73,7 +84,8 @@ const helloTool = registerAuthenticatedTool({
   execute: async ({ args, authInfo, getOutboundToken }) => {
     const name = args.name || "there";
 
-    // Optional: Get outbound token for external API calls
+    // Optional: Get outbound token for external API calls. No management key
+    // required – the MCP access token is exchanged for the outbound token.
     // const externalToken = await getOutboundToken('external-app-id', ['read']);
 
     return {
@@ -88,7 +100,7 @@ app.use(
   descopeMcpAuthRouter((server) => {
     // Register your MCP tools here
     helloTool(server);
-  }),
+  }, provider),
 );
 
 app.listen(3000);
@@ -104,10 +116,11 @@ The `descopeMcpAuthRouter()` function:
 
 **DescopeMcpProvider**: The provider handles all the OAuth 2.0 complexity including:
 
-- Bearer token validation via Descope SDK
+- Bearer token validation via JWKS (discovered from the issuer's OIDC metadata)
 - MCP 2025-06-18 compliance (Protected Resource Metadata)
 - OAuth server configuration and endpoints
 - Scope validation and authentication context
+- Outbound token exchange using the user's MCP access token (no management key required)
 
 5. Add `auth` TypeScript type (optional)
 
