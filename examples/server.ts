@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { descopeMcpAuthRouter, DescopeMcpProvider } from "@descope/mcp-express";
 import { greetingTool } from "./tools/greetingTool.js";
+import { statusTool } from "./tools/statusTool.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -34,21 +35,33 @@ app.get("/health", (_req, res) => {
 // Setup MCP router with authentication and tools
 const mcpRouter = descopeMcpAuthRouter((server) => {
   greetingTool(server);
+  statusTool(server);
 
   console.log("Registered MCP tools:");
   console.log("  - greeting: Say hello to authenticated users");
+  console.log("  - status: Server and user information");
 }, provider);
 
 app.use(mcpRouter);
 
-// Error handling middleware
-app.use((err: Error, _req: express.Request, res: express.Response) => {
-  console.error("Server error:", err);
-  res.status(500).json({
-    error: "Internal server error",
-    message: process.env.NODE_ENV === "development" ? err.message : undefined,
-  });
-});
+// Error handling middleware (must have 4 parameters)
+app.use(
+  (
+    err: Error,
+    _req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    console.error("Server error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      message: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  },
+);
 
 // Start the server
 app.listen(port, () => {

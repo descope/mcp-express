@@ -53,7 +53,7 @@ export function createMcpServerHandler(
     const server = new McpServer(config, { capabilities: config.capabilities });
 
     // Get auth info from the authenticated request
-    const authInfo = (req as Request & { authInfo?: AuthInfo }).authInfo;
+    const authInfo = (req as Request & { auth?: AuthInfo }).auth;
 
     // Attach request context to the server for this request lifecycle
     if (authInfo) {
