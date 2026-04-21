@@ -21,7 +21,7 @@ const testMcpConnection = async () => {
   // Test 2: Check OAuth metadata
   try {
     const oauthResponse = await fetch(
-      `${baseUrl}/.well-known/oauth-authorization-server`
+      `${baseUrl}/.well-known/oauth-authorization-server`,
     );
     const oauthData = await oauthResponse.json();
     console.log("✅ OAuth Metadata:", {
@@ -36,7 +36,7 @@ const testMcpConnection = async () => {
   // Test 3: Check protected resource metadata
   try {
     const resourceResponse = await fetch(
-      `${baseUrl}/.well-known/oauth-protected-resource`
+      `${baseUrl}/.well-known/oauth-protected-resource`,
     );
     const resourceData = await resourceResponse.json();
     console.log("✅ Protected Resource Metadata:", {
@@ -51,9 +51,7 @@ const testMcpConnection = async () => {
   console.log("\n📋 MCP Inspector Configuration:");
   console.log("URL: http://localhost:3000/mcp");
   console.log("Auth Type: Bearer Token");
-  console.log(
-    "Authorization Server: https://api.descope.com/v1/apps/P2OkfVnJi5Ht7mpCqHjx17nV5epH"
-  );
+  console.log("Authorization Server: https://api.descope.com/v1/apps/");
   console.log("Required Scopes: openid, profile");
   console.log("\n💡 To connect with MCP Inspector:");
   console.log("1. Get an access token from your Descope project");
