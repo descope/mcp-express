@@ -36,7 +36,6 @@ npm install @descope/mcp-express
 ## Quick Start
 
 1. Grab the **OAuth issuer URL** of your Descope MCP server / Inbound App from the [Descope Console](https://app.descope.com/). It looks like:
-
    - Agentic / MCP format: `https://api.descope.com/v1/apps/agentic/<projectId>/<mcpServerId>`
    - Classic Inbound App format: `https://api.descope.com/v1/apps/<projectId>`
 

@@ -21,7 +21,7 @@ export const calendarReadTool = defineTool({
     timeMax: z
       .string()
       .describe(
-        "End time for events (ISO 8601 format, default: 7 days from now)"
+        "End time for events (ISO 8601 format, default: 7 days from now)",
       )
       .optional(),
     maxResults: z
@@ -37,7 +37,7 @@ export const calendarReadTool = defineTool({
     // Get outbound token for Google Calendar API
     const outboundToken = await extra.getOutboundToken(
       "google-calendar", // App ID configured in Descope
-      ["https://www.googleapis.com/auth/calendar"]
+      ["https://www.googleapis.com/auth/calendar"],
     );
 
     if (!outboundToken) {
@@ -53,7 +53,7 @@ export const calendarReadTool = defineTool({
                 authenticatedUser: extra.authInfo.clientId,
               },
               null,
-              2
+              2,
             ),
           },
         ],
@@ -102,7 +102,7 @@ export const calendarReadTool = defineTool({
                   authenticatedUser: extra.authInfo.clientId,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -132,7 +132,7 @@ export const calendarReadTool = defineTool({
             location: event.location,
             attendees: event.attendees?.map((a) => a.email),
             organizer: event.organizer?.email,
-          })
+          }),
         ) || [];
 
       const result = {
@@ -168,7 +168,7 @@ export const calendarReadTool = defineTool({
                 authenticatedUser: extra.authInfo.clientId,
               },
               null,
-              2
+              2,
             ),
           },
         ],

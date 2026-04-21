@@ -25,8 +25,10 @@ import {
 /**
  * Enhanced request handler extra that includes auth info and outbound token function
  */
-export interface AuthenticatedExtra
-  extends RequestHandlerExtra<ServerRequest, ServerNotification> {
+export interface AuthenticatedExtra extends RequestHandlerExtra<
+  ServerRequest,
+  ServerNotification
+> {
   authInfo: AuthInfo;
   getOutboundToken: (
     appId: string,

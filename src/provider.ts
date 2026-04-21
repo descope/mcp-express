@@ -154,7 +154,9 @@ function deriveFromIssuer(issuer: string): DerivedIssuerInfo {
 
   return {
     baseUrl: `${parsed.protocol}//${parsed.host}`,
-    projectId: projectId ?? (segments.length > 0 ? segments[segments.length - 1] : undefined),
+    projectId:
+      projectId ??
+      (segments.length > 0 ? segments[segments.length - 1] : undefined),
     mcpServerId,
   };
 }

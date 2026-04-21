@@ -27,7 +27,7 @@ export const calendarWriteTool = defineTool({
     eventId: z
       .string()
       .describe(
-        "Event ID for updating existing events (leave empty for new events)"
+        "Event ID for updating existing events (leave empty for new events)",
       )
       .optional(),
   },
@@ -62,7 +62,7 @@ export const calendarWriteTool = defineTool({
                 authenticatedUser: extra.authInfo.clientId,
               },
               null,
-              2
+              2,
             ),
           },
         ],
@@ -123,7 +123,7 @@ export const calendarWriteTool = defineTool({
                   authenticatedUser: extra.authInfo.clientId,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -169,7 +169,7 @@ export const calendarWriteTool = defineTool({
                 authenticatedUser: extra.authInfo.clientId,
               },
               null,
-              2
+              2,
             ),
           },
         ],

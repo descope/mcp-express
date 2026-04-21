@@ -23,7 +23,9 @@ describe("DescopeMcpProvider", () => {
             managementKey: "test-key",
             serverUrl: "https://test.example.com",
           }),
-      ).toThrow("DESCOPE_PROJECT_ID (or DESCOPE_MCP_SERVER_ISSUER) is not set.");
+      ).toThrow(
+        "DESCOPE_PROJECT_ID (or DESCOPE_MCP_SERVER_ISSUER) is not set.",
+      );
     });
 
     it("should not require managementKey by default", () => {
@@ -74,8 +76,7 @@ describe("DescopeMcpProvider", () => {
 
     it("should derive projectId and baseUrl from a classic issuer URL", () => {
       const provider = new DescopeMcpProvider({
-        issuer:
-          "https://api.descope.com/v1/apps/P2v9EBlmO4XTrOwMRfsY1jeUONxU",
+        issuer: "https://api.descope.com/v1/apps/P2v9EBlmO4XTrOwMRfsY1jeUONxU",
         serverUrl: "https://test.example.com",
       });
 
