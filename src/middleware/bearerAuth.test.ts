@@ -3,6 +3,9 @@ import request from "supertest";
 import express from "express";
 import { descopeMcpBearerAuth } from "./bearerAuth.js";
 import { DescopeMcpProvider } from "../provider.js";
+import type { ValidatedToken } from "../utils/tokenValidator.js";
+
+type ValidateFn = (token: string) => Promise<ValidatedToken>;
 
 // Mock the DescopeMcpProvider
 const mockProvider = {
@@ -58,7 +61,9 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should include resource_metadata in WWW-Authenticate header on insufficient scope", async () => {
     // Mock successful token validation but insufficient scopes
-    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
+    (
+      mockProvider.tokenValidator.validate as jest.MockedFunction<ValidateFn>
+    ).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
@@ -98,7 +103,9 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should succeed with valid token and sufficient scopes", async () => {
     // Mock successful token validation
-    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
+    (
+      mockProvider.tokenValidator.validate as jest.MockedFunction<ValidateFn>
+    ).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
@@ -118,7 +125,9 @@ describe("descopeMcpBearerAuth", () => {
 
   it("should validate resource indicator when configured", async () => {
     // Mock successful token validation with resource claim
-    (mockProvider.tokenValidator.validate as jest.Mock<any>).mockResolvedValue({
+    (
+      mockProvider.tokenValidator.validate as jest.MockedFunction<ValidateFn>
+    ).mockResolvedValue({
       jwt: "valid-token",
       token: {
         aud: "test-audience",
