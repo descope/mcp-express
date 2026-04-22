@@ -54,7 +54,7 @@ SERVER_URL=your_mcp_server_url
 npm install dotenv
 ```
 
-2. Minimal server
+4. Minimal server
 
 ```typescript
 import "dotenv/config";
@@ -73,33 +73,27 @@ const provider = new DescopeMcpProvider({
   scopesSupported: ["openid", "profile", "email"],
 });
 
-// Optional: Define MCP tools with authentication
-const helloTool = registerAuthenticatedTool({
+const helloTool = defineTool({
   name: "hello",
   description: "Say hello to the authenticated user",
   input: {
     name: z.string().describe("Name to greet").optional(),
   },
-  requiredScopes: ["openid"], // Basic authentication required
-  execute: async ({ args, authInfo, getOutboundToken }) => {
-    const name = args.name || "there";
-
-    // Optional: Get outbound token for external API calls. No management key
-    // required – the MCP access token is exchanged for the outbound token.
-    // const externalToken = await getOutboundToken('external-app-id', ['read']);
-
-    return {
+  scopes: ["openid"],
+  handler: async (args, extra) => {
+    const name = args.name ?? "there";
+    const result = {
       message: `Hello ${name}!`,
-      authenticatedUser: authInfo.clientId,
+      authenticatedUser: extra.authInfo.clientId,
     };
-    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
   },
 });
 
-// Wire the MCP router and register your tools
 app.use(
   descopeMcpAuthRouter((server) => {
-    // Register your MCP tools here
     helloTool(server);
   }, provider),
 );
@@ -112,7 +106,7 @@ app.listen(3000, () => {
 Pro tips
 
 - Send `Content-Type: application/json` to `/mcp`.
-- `/mcp` requires a valid Bearer token.
+- `/mcp` requires a valid Bearer token (validated with JWKS from your issuer’s OIDC discovery document).
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
 
 ## Creating Authenticated Tools
@@ -193,12 +187,13 @@ There isn’t anything you can do with one that you can’t do with the other. P
 
 ## Features
 
-MCP 2025‑06‑18 compliant Resource Server.
+Designed for the [MCP specification (2025‑11‑25)](https://modelcontextprotocol.io/specification/2025-11-25) resource-server profile.
 
-- Protected Resource Metadata (RFC 8705)
-- Authorization Server Metadata (RFC 8414)
-- `/mcp` endpoint with bearer token authentication
-- Resource Indicator support (RFC 8707)
+- Protected Resource Metadata ([RFC 9728](https://www.rfc-editor.org/rfc/rfc9728))
+- Authorization Server Metadata ([RFC 8414](https://www.rfc-editor.org/rfc/rfc8414))
+- `/mcp` endpoint with bearer token authentication (JWT verified via JWKS from the issuer)
+- Resource indicators ([RFC 8707](https://www.rfc-editor.org/rfc/rfc8707))
+- Outbound tokens for third-party APIs via `getOutboundToken` / `extra.getOutboundToken` (uses the caller’s MCP access token; a management key is not required for typical setups)
 
 Optional (Authorization Server)
 
@@ -210,7 +205,7 @@ Optional (Authorization Server)
 
 Resource Server (always enabled)
 
-- RFC 8705: OAuth 2.0 Protected Resource Metadata
+- RFC 9728: OAuth 2.0 Protected Resource Metadata
 - RFC 8414: OAuth 2.0 Authorization Server Metadata
 - RFC 8707: Resource Indicators for OAuth 2.0
 
@@ -225,12 +220,12 @@ All OAuth schemas use Zod for runtime validation.
 
 ### Legacy Authorization Server Mode (not recommended)
 
-By default, this SDK runs as a Resource Server only. That’s the recommended path and aligns with the MCP 2025‑06‑18 spec. The features below are for legacy compatibility and testing. Enabling them exposes additional endpoints (/authorize, /register). Consider the added surface area before turning them on.
+By default, this SDK runs as a Resource Server only. That’s the recommended path and aligns with the [MCP specification (2025‑11‑25)](https://modelcontextprotocol.io/specification/2025-11-25). The features below are for legacy compatibility and testing. Enabling them exposes additional endpoints (`/authorize`, `/register`). Consider the added surface area before turning them on.
 
 Requirements
 
-- DESCOPE_PROJECT_ID and SERVER_URL
-- DESCOPE_MANAGEMENT_KEY (required only when enabling Authorization Server features)
+- `DESCOPE_PROJECT_ID` and `SERVER_URL` (or use `DESCOPE_MCP_SERVER_ISSUER` so `projectId` is derived)
+- `DESCOPE_MANAGEMENT_KEY` (required only when enabling Authorization Server features)
 
 Example .env
 
@@ -278,7 +273,7 @@ const provider = new DescopeMcpProvider({
   verifyTokenOptions: {
     requiredScopes: ["get-schema", "run-query"],
     // resourceIndicator: "your-resource", // optional
-    // audience: "your-audience", // optional (single value supported currently)
+    // audience: ["your-audience"], // optional — one or more expected `aud` values
   },
 });
 ```
