@@ -20,6 +20,9 @@ importers:
       express:
         specifier: 4.22.0
         version: 4.22.0
+      jose:
+        specifier: ^6.2.2
+        version: 6.2.2
       zod:
         specifier: 3.25.67
         version: 3.25.67
