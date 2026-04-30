@@ -42,10 +42,10 @@ npm install @descope/mcp-express
 ```bash
 SERVER_URL=http://localhost:3000
 # Recommended: MCP Server Discovery URL
-DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
 
 # Optional (advanced): provide issuer directly instead of well-known URL (works with Inbound Apps as well)
-# DESCOPE_MCP_SERVER_ISSUER=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>
+# DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>
 
 # Backward-compatible fallback (existing setups)
 # DESCOPE_PROJECT_ID=your_project_id
@@ -231,7 +231,7 @@ Requirements
 Example .env
 
 ```bash
-DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
 SERVER_URL=http://localhost:3000
 ```
 
