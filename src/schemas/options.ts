@@ -88,7 +88,11 @@ export const AuthorizationServerOptionsSchema = z.object({
  * Configuration options for the Descope MCP SDK.
  */
 export const DescopeMcpProviderOptionsSchema = z.object({
-  /** The Descope project ID (backward-compatible fallback when issuer is not provided) */
+  /**
+   * Descope project ID. Optional when `descopeMcpServerWellKnownUrl` or
+   * `descopeMcpServerIssuer` uses a supported path (for example `/v1/apps/agentic/<projectId>/...`),
+   * in which case the project ID is derived from that URL.
+   */
   projectId: z.string().optional(),
 
   /** The Descope management key for administrative operations */

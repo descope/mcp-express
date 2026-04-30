@@ -47,7 +47,7 @@ DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<proje
 # Optional (advanced): provide issuer directly instead of well-known URL (works with Inbound Apps as well)
 # DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>
 
-# Backward-compatible fallback (existing setups)
+# Optional: override derived values (existing setups or non-agentic issuer URLs)
 # DESCOPE_PROJECT_ID=your_project_id
 # DESCOPE_BASE_URL=https://api.descope.com
 ```
@@ -108,8 +108,9 @@ Pro tips
 - Send `Content-Type: application/json` to `/mcp`.
 - `/mcp` requires a valid Bearer token.
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
-- Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer automatically.
-- Backward compatibility: if neither is set, we fall back to project/baseUrl-derived issuer behavior.
+- Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer, project ID, and API `baseUrl` (from the URL origin) automatically.
+- `DESCOPE_PROJECT_ID` is optional when the discovery or issuer URL uses `/v1/apps/agentic/<projectId>/...` (or legacy `/v1/apps/<projectId>`). Set it explicitly if your issuer path is not one of those shapes.
+- Backward compatibility: if neither discovery nor issuer is set, provide `DESCOPE_PROJECT_ID` (and optional `DESCOPE_BASE_URL`) as before.
 
 ## Creating Authenticated Tools
 

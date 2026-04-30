@@ -98,9 +98,7 @@ describe("protectedResourceHandler", () => {
     const issuerProvider = {
       serverUrl: "https://mcp-server.example.com",
       descopeOAuthEndpoints: {
-        issuer: new URL(
-          "https://api.descope.com/v1/apps/agentic/project/id/.well-known/openid-configuration",
-        ),
+        issuer: new URL("https://api.descope.com/v1/apps/agentic/project/id"),
       },
       options: {},
     } as DescopeMcpProvider;
@@ -116,7 +114,7 @@ describe("protectedResourceHandler", () => {
       .expect(200);
 
     expect(response.body.authorization_servers).toEqual([
-      "https://api.descope.com/v1/mcp/issuer/test",
+      "https://api.descope.com/v1/apps/agentic/project/id",
     ]);
   });
 });

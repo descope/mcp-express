@@ -102,6 +102,55 @@ const API_PATHS = {
   AUTHORIZATION: "/oauth2/v1/apps/authorize",
 } as const;
 
+const OPENID_CONFIGURATION_SUFFIX = "/.well-known/openid-configuration";
+
+/**
+ * Extract Descope project ID from an MCP Server or Inbound App issuer path.
+ *
+ * Supports:
+ * - `/v1/apps/agentic/<projectId>/...` (MCP Server)
+ * - `/v1/apps/<projectId>` (legacy Inbound App issuer)
+ */
+export function parseDescopeProjectIdFromIssuerPath(pathname: string): string | undefined {
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (
+    segments[0] === "v1" &&
+    segments[1] === "apps" &&
+    segments[2] === "agentic" &&
+    segments[3]
+  ) {
+    return segments[3];
+  }
+
+  if (
+    segments[0] === "v1" &&
+    segments[1] === "apps" &&
+    segments[2] &&
+    segments[2] !== "agentic"
+  ) {
+    return segments[2];
+  }
+
+  return undefined;
+}
+
+function assertOpenIdConfigurationUrl(wellKnownUrl: URL): void {
+  if (!wellKnownUrl.pathname.endsWith(OPENID_CONFIGURATION_SUFFIX)) {
+    throw new Error(
+      `DESCOPE_MCP_SERVER_WELL_KNOWN_URL must end with '${OPENID_CONFIGURATION_SUFFIX}'.`,
+    );
+  }
+}
+
+function issuerPathnameFromWellKnownUrl(wellKnownUrl: URL): string {
+  assertOpenIdConfigurationUrl(wellKnownUrl);
+  return wellKnownUrl.pathname.slice(
+    0,
+    -OPENID_CONFIGURATION_SUFFIX.length,
+  );
+}
+
 export class DescopeMcpProvider {
   readonly descope: ReturnType<typeof DescopeClient>;
   readonly projectId: string;
@@ -122,12 +171,31 @@ export class DescopeMcpProvider {
     descopeMcpServerWellKnownUrl = readEnv("DESCOPE_MCP_SERVER_WELL_KNOWN_URL"),
     ...opts
   }: DescopeMcpProviderOptions = {}) {
-    // Validate required parameters
-    if (!projectId) {
-      throw new Error("DESCOPE_PROJECT_ID is not set.");
-    }
     if (!serverUrl) {
       throw new Error("SERVER_URL is not set.");
+    }
+
+    let derivedProjectId: string | undefined;
+    let derivedBaseUrl: string | undefined;
+
+    if (descopeMcpServerWellKnownUrl) {
+      const wellKnown = new URL(descopeMcpServerWellKnownUrl);
+      derivedBaseUrl = wellKnown.origin;
+      const issuerPath = issuerPathnameFromWellKnownUrl(wellKnown);
+      derivedProjectId = parseDescopeProjectIdFromIssuerPath(issuerPath);
+    }
+
+    if (!derivedProjectId && descopeMcpServerIssuer) {
+      const issuer = new URL(descopeMcpServerIssuer);
+      derivedBaseUrl = derivedBaseUrl ?? issuer.origin;
+      derivedProjectId = parseDescopeProjectIdFromIssuerPath(issuer.pathname);
+    }
+
+    const resolvedProjectId = projectId ?? derivedProjectId;
+    if (!resolvedProjectId) {
+      throw new Error(
+        "Set DESCOPE_PROJECT_ID, or provide DESCOPE_MCP_SERVER_WELL_KNOWN_URL / DESCOPE_MCP_SERVER_ISSUER with a supported path (for example /v1/apps/agentic/<projectId>/...) so the project ID can be derived.",
+      );
     }
 
     // Management key is only required when Authorization Server features are enabled
@@ -140,9 +208,9 @@ export class DescopeMcpProvider {
     }
 
     // Initialize basic properties
-    this.baseUrl = baseUrl || DEFAULT_BASE_URL;
+    this.baseUrl = baseUrl || derivedBaseUrl || DEFAULT_BASE_URL;
     this.serverUrl = serverUrl;
-    this.projectId = projectId;
+    this.projectId = resolvedProjectId;
     this.managementKey = managementKey;
     this.descopeMcpServerIssuer = descopeMcpServerIssuer;
     this.descopeMcpServerWellKnownUrl = descopeMcpServerWellKnownUrl;
@@ -192,15 +260,7 @@ export class DescopeMcpProvider {
     }
 
     const wellKnownUrl = new URL(this.descopeMcpServerWellKnownUrl);
-    const wellKnownPath = "/.well-known/openid-configuration";
-
-    if (!wellKnownUrl.pathname.endsWith(wellKnownPath)) {
-      throw new Error(
-        `DESCOPE_MCP_SERVER_WELL_KNOWN_URL must end with '${wellKnownPath}'.`,
-      );
-    }
-
-    const issuerPath = wellKnownUrl.pathname.slice(0, -wellKnownPath.length);
+    const issuerPath = issuerPathnameFromWellKnownUrl(wellKnownUrl);
     return new URL(issuerPath || "/", wellKnownUrl.origin);
   }
 

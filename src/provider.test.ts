@@ -1,5 +1,28 @@
-import { DescopeMcpProvider } from "./provider.js";
-import { readEnv } from "./provider.js";
+import {
+  DescopeMcpProvider,
+  parseDescopeProjectIdFromIssuerPath,
+  readEnv,
+} from "./provider.js";
+
+describe("parseDescopeProjectIdFromIssuerPath", () => {
+  it("parses agentic MCP issuer path", () => {
+    expect(
+      parseDescopeProjectIdFromIssuerPath(
+        "/v1/apps/agentic/P32juVkF2iM8wAGoM8PiLkGi6POV/MS3AzJYzWaBYjfnSRqeb5nvM0kT84",
+      ),
+    ).toBe("P32juVkF2iM8wAGoM8PiLkGi6POV");
+  });
+
+  it("parses legacy inbound issuer path", () => {
+    expect(parseDescopeProjectIdFromIssuerPath("/v1/apps/test-project")).toBe(
+      "test-project",
+    );
+  });
+
+  it("returns undefined for unsupported paths", () => {
+    expect(parseDescopeProjectIdFromIssuerPath("/v1/mcp/issuer/foo")).toBeUndefined();
+  });
+});
 
 describe("DescopeMcpProvider", () => {
   describe("constructor", () => {
@@ -16,14 +39,61 @@ describe("DescopeMcpProvider", () => {
       expect(provider.baseUrl).toBe("https://api.descope.com"); // default value
     });
 
-    it("should throw error when projectId is missing", () => {
+    it("should throw when project ID cannot be resolved", () => {
       expect(
         () =>
           new DescopeMcpProvider({
             managementKey: "test-key",
             serverUrl: "https://test.example.com",
           }),
-      ).toThrow("DESCOPE_PROJECT_ID is not set.");
+      ).toThrow(
+        "Set DESCOPE_PROJECT_ID, or provide DESCOPE_MCP_SERVER_WELL_KNOWN_URL",
+      );
+    });
+
+    it("should derive project ID and base URL from well-known URL only", () => {
+      const provider = new DescopeMcpProvider({
+        serverUrl: "https://test.example.com",
+        descopeMcpServerWellKnownUrl:
+          "https://api.descope.org/v1/apps/agentic/proj-from-url/mcp-id/.well-known/openid-configuration",
+      });
+
+      expect(provider.projectId).toBe("proj-from-url");
+      expect(provider.baseUrl).toBe("https://api.descope.org");
+    });
+
+    it("should derive project ID and base URL from issuer URL only", () => {
+      const provider = new DescopeMcpProvider({
+        serverUrl: "https://test.example.com",
+        descopeMcpServerIssuer:
+          "https://api.descope.org/v1/apps/agentic/proj-from-issuer/mcp-id",
+      });
+
+      expect(provider.projectId).toBe("proj-from-issuer");
+      expect(provider.baseUrl).toBe("https://api.descope.org");
+    });
+
+    it("should prefer explicit baseUrl over discovery origin", () => {
+      const provider = new DescopeMcpProvider({
+        serverUrl: "https://test.example.com",
+        baseUrl: "https://custom.descope.com",
+        descopeMcpServerWellKnownUrl:
+          "https://api.descope.org/v1/apps/agentic/proj-x/mcp/.well-known/openid-configuration",
+      });
+
+      expect(provider.projectId).toBe("proj-x");
+      expect(provider.baseUrl).toBe("https://custom.descope.com");
+    });
+
+    it("should prefer explicit projectId over derived", () => {
+      const provider = new DescopeMcpProvider({
+        projectId: "explicit-project",
+        serverUrl: "https://test.example.com",
+        descopeMcpServerWellKnownUrl:
+          "https://api.descope.org/v1/apps/agentic/from-url/mcp/.well-known/openid-configuration",
+      });
+
+      expect(provider.projectId).toBe("explicit-project");
     });
 
     it("should not require managementKey by default", () => {
@@ -143,8 +213,6 @@ describe("DescopeMcpProvider", () => {
       expect(
         () =>
           new DescopeMcpProvider({
-            projectId: "test-project",
-            managementKey: "test-key",
             serverUrl: "https://test.example.com",
             descopeMcpServerWellKnownUrl:
               "https://api.descope.com/v1/apps/agentic/example",
