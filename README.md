@@ -35,14 +35,16 @@ npm install @descope/mcp-express
 
 ## Quick Start
 
+> Before you get started, you must create an [MCP Server](https://app.descope.com/agentic-hub/mcp-servers) in the Descope Console and get the Discovery URL of your new server.
+
 1. Create `.env`
 
 ```bash
 SERVER_URL=http://localhost:3000
-# Recommended: MCP Server OpenID Configuration URL
+# Recommended: MCP Server Discovery URL
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
 
-# Optional (advanced): provide issuer directly instead of well-known URL
+# Optional (advanced): provide issuer directly instead of well-known URL (works with Inbound Apps as well)
 # DESCOPE_MCP_SERVER_ISSUER=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>
 
 # Backward-compatible fallback (existing setups)
@@ -107,7 +109,6 @@ Pro tips
 - `/mcp` requires a valid Bearer token.
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
 - Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer automatically.
-- `DESCOPE_MCP_SERVER_ISSUER` is optional for advanced/direct configuration.
 - Backward compatibility: if neither is set, we fall back to project/baseUrl-derived issuer behavior.
 
 ## Creating Authenticated Tools
@@ -230,9 +231,8 @@ Requirements
 Example .env
 
 ```bash
-DESCOPE_PROJECT_ID=your_project_id
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
 SERVER_URL=http://localhost:3000
-DESCOPE_MANAGEMENT_KEY=your_management_key
 ```
 
 Configuration example
