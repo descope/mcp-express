@@ -108,6 +108,8 @@ export class DescopeMcpProvider {
   readonly managementKey?: string;
   readonly baseUrl: string;
   readonly serverUrl: string;
+  readonly descopeMcpServerIssuer?: string;
+  readonly descopeMcpServerWellKnownUrl?: string;
   readonly descopeOAuthEndpoints: DescopeEndpoints;
   private readonly _options: DescopeMcpProviderOptions;
 
@@ -116,6 +118,8 @@ export class DescopeMcpProvider {
     managementKey = readEnv("DESCOPE_MANAGEMENT_KEY"),
     baseUrl = readEnv("DESCOPE_BASE_URL"),
     serverUrl = readEnv("SERVER_URL"),
+    descopeMcpServerIssuer = readEnv("DESCOPE_MCP_SERVER_ISSUER"),
+    descopeMcpServerWellKnownUrl = readEnv("DESCOPE_MCP_SERVER_WELL_KNOWN_URL"),
     ...opts
   }: DescopeMcpProviderOptions = {}) {
     // Validate required parameters
@@ -140,6 +144,8 @@ export class DescopeMcpProvider {
     this.serverUrl = serverUrl;
     this.projectId = projectId;
     this.managementKey = managementKey;
+    this.descopeMcpServerIssuer = descopeMcpServerIssuer;
+    this.descopeMcpServerWellKnownUrl = descopeMcpServerWellKnownUrl;
 
     // Initialize options with defaults
     this._options = this.initializeOptions(opts);
@@ -173,18 +179,42 @@ export class DescopeMcpProvider {
       managementKey: this.managementKey,
       serverUrl: this.serverUrl,
       baseUrl: this.baseUrl,
+      descopeMcpServerIssuer: this.descopeMcpServerIssuer,
+      descopeMcpServerWellKnownUrl: this.descopeMcpServerWellKnownUrl,
       dynamicClientRegistrationOptions,
       ...opts,
     };
   }
 
+  private getIssuerFromWellKnown(): URL | undefined {
+    if (!this.descopeMcpServerWellKnownUrl) {
+      return undefined;
+    }
+
+    const wellKnownUrl = new URL(this.descopeMcpServerWellKnownUrl);
+    const wellKnownPath = "/.well-known/openid-configuration";
+
+    if (!wellKnownUrl.pathname.endsWith(wellKnownPath)) {
+      throw new Error(
+        `DESCOPE_MCP_SERVER_WELL_KNOWN_URL must end with '${wellKnownPath}'.`,
+      );
+    }
+
+    const issuerPath = wellKnownUrl.pathname.slice(0, -wellKnownPath.length);
+    return new URL(issuerPath || "/", wellKnownUrl.origin);
+  }
+
   private initializeOAuthEndpoints(): DescopeEndpoints {
+    // Prefer explicit MCP Server OpenID configuration URL or issuer when configured.
+    // Fall back to project-based issuer for backward compatibility with existing Inbound App integrations.
+    const issuer =
+      this.getIssuerFromWellKnown() ||
+      (this.descopeMcpServerIssuer
+        ? new URL(this.descopeMcpServerIssuer)
+        : UrlBuilder.construct(this.baseUrl, API_PATHS.ISSUER, this.projectId));
+
     const endpoints = {
-      issuer: UrlBuilder.construct(
-        this.baseUrl,
-        API_PATHS.ISSUER,
-        this.projectId,
-      ),
+      issuer,
       authorization: UrlBuilder.construct(
         this.baseUrl,
         API_PATHS.AUTHORIZATION,

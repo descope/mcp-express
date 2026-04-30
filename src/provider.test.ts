@@ -111,6 +111,48 @@ describe("DescopeMcpProvider", () => {
       // Should not throw an error
       expect(() => localProvider.descopeOAuthEndpoints).not.toThrow();
     });
+
+    it("should use DESCOPE_MCP_SERVER_ISSUER when provided", () => {
+      const issuerProvider = new DescopeMcpProvider({
+        projectId: "test-project",
+        managementKey: "test-key",
+        serverUrl: "https://test.example.com",
+        descopeMcpServerIssuer: "https://api.descope.com/v1/mcp/issuer/test",
+      });
+
+      expect(issuerProvider.descopeOAuthEndpoints.issuer.toString()).toBe(
+        "https://api.descope.com/v1/mcp/issuer/test",
+      );
+    });
+
+    it("should derive issuer from DESCOPE_MCP_SERVER_WELL_KNOWN_URL when provided", () => {
+      const wellKnownProvider = new DescopeMcpProvider({
+        projectId: "test-project",
+        managementKey: "test-key",
+        serverUrl: "https://test.example.com",
+        descopeMcpServerWellKnownUrl:
+          "https://api.descope.com/v1/apps/agentic/project/mcp/.well-known/openid-configuration",
+      });
+
+      expect(wellKnownProvider.descopeOAuthEndpoints.issuer.toString()).toBe(
+        "https://api.descope.com/v1/apps/agentic/project/mcp",
+      );
+    });
+
+    it("should throw when DESCOPE_MCP_SERVER_WELL_KNOWN_URL is not an OpenID config URL", () => {
+      expect(
+        () =>
+          new DescopeMcpProvider({
+            projectId: "test-project",
+            managementKey: "test-key",
+            serverUrl: "https://test.example.com",
+            descopeMcpServerWellKnownUrl:
+              "https://api.descope.com/v1/apps/agentic/example",
+          }),
+      ).toThrow(
+        "DESCOPE_MCP_SERVER_WELL_KNOWN_URL must end with '/.well-known/openid-configuration'.",
+      );
+    });
   });
 
   describe("dynamic client registration options", () => {

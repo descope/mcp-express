@@ -38,8 +38,16 @@ npm install @descope/mcp-express
 1. Create `.env`
 
 ```bash
-DESCOPE_PROJECT_ID=your_project_id
 SERVER_URL=http://localhost:3000
+# Recommended: MCP Server OpenID Configuration URL
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
+
+# Optional (advanced): provide issuer directly instead of well-known URL
+# DESCOPE_MCP_SERVER_ISSUER=https://api.descope.org/v1/apps/agentic/<project>/<mcp-server-id>
+
+# Backward-compatible fallback (existing setups)
+# DESCOPE_PROJECT_ID=your_project_id
+# DESCOPE_BASE_URL=https://api.descope.com
 ```
 
 2. Minimal server
@@ -56,9 +64,12 @@ app.use(express.json());
 
 // Optional: explicit provider config (env work out of the box)
 const provider = new DescopeMcpProvider({
-  projectId: process.env.DESCOPE_PROJECT_ID,
   serverUrl: process.env.SERVER_URL,
-  baseUrl: process.env.DESCOPE_BASE_URL, // optional
+  descopeMcpServerWellKnownUrl: process.env.DESCOPE_MCP_SERVER_WELL_KNOWN_URL,
+
+  // Backward-compatible fallback:
+  projectId: process.env.DESCOPE_PROJECT_ID,
+  baseUrl: process.env.DESCOPE_BASE_URL,
 });
 
 // Define an authenticated tool (requires 'openid')
@@ -95,6 +106,9 @@ Pro tips
 - Send `Content-Type: application/json` to `/mcp`.
 - `/mcp` requires a valid Bearer token.
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
+- Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer automatically.
+- `DESCOPE_MCP_SERVER_ISSUER` is optional for advanced/direct configuration.
+- Backward compatibility: if neither is set, we fall back to project/baseUrl-derived issuer behavior.
 
 ## Creating Authenticated Tools
 

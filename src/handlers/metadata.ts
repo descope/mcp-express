@@ -5,9 +5,7 @@ import { allowedMethods } from "../middleware/allowedMethods.js";
 import { DescopeMcpProvider } from "../provider.js";
 
 export function metadataHandler(provider: DescopeMcpProvider): RequestHandler {
-  const baseUrl = provider.baseUrl;
-  const projectId = provider.projectId;
-  const issuer = new URL(projectId, baseUrl);
+  const issuer = provider.descopeOAuthEndpoints.issuer;
 
   const authorization_endpoint = new URL("/authorize", provider.serverUrl).href;
   const token_endpoint = provider.descopeOAuthEndpoints.token.href;

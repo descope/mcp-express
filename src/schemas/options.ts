@@ -88,7 +88,7 @@ export const AuthorizationServerOptionsSchema = z.object({
  * Configuration options for the Descope MCP SDK.
  */
 export const DescopeMcpProviderOptionsSchema = z.object({
-  /** The Descope project ID */
+  /** The Descope project ID (backward-compatible fallback when issuer is not provided) */
   projectId: z.string().optional(),
 
   /** The Descope management key for administrative operations */
@@ -100,8 +100,14 @@ export const DescopeMcpProviderOptionsSchema = z.object({
    *  **/
   serverUrl: z.string().optional(),
 
-  /** The Descope base URL if a custom domain is set */
+  /** The Descope base URL for project-based endpoint construction */
   baseUrl: z.string().optional(),
+
+  /** MCP Server issuer. When provided, this overrides project/baseUrl issuer discovery. */
+  descopeMcpServerIssuer: z.string().optional(),
+
+  /** MCP Server Discovery URL. If provided, `/.well-known/openid-configuration` is stripped to derive issuer. */
+  descopeMcpServerWellKnownUrl: z.string().optional(),
 
   /** Options for dynamic client registration */
   dynamicClientRegistrationOptions:

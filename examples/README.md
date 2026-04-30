@@ -16,8 +16,16 @@ Configure your Descope project:
 
 ```bash
 # Required
-DESCOPE_PROJECT_ID=your_project_id_here
 SERVER_URL=http://localhost:3000
+
+# Recommended
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.org/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
+
+# Optional (advanced)
+# DESCOPE_MCP_SERVER_ISSUER=https://api.descope.org/v1/apps/agentic/<project>/<server>
+
+# Backward-compatible fallback
+# DESCOPE_PROJECT_ID=your_project_id_here
 ```
 
 ### Configure Descope Project

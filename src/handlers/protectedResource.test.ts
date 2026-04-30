@@ -93,4 +93,30 @@ describe("protectedResourceHandler", () => {
       bearer_methods_supported: ["header"],
     });
   });
+
+  it("should return configured MCP Server issuer when provided", async () => {
+    const issuerProvider = {
+      serverUrl: "https://mcp-server.example.com",
+      descopeOAuthEndpoints: {
+        issuer: new URL(
+          "https://api.descope.com/v1/apps/agentic/project/id/.well-known/openid-configuration",
+        ),
+      },
+      options: {},
+    } as DescopeMcpProvider;
+
+    const issuerApp = express();
+    issuerApp.use(
+      "/.well-known/oauth-protected-resource",
+      protectedResourceHandler(issuerProvider),
+    );
+
+    const response = await request(issuerApp)
+      .get("/.well-known/oauth-protected-resource")
+      .expect(200);
+
+    expect(response.body.authorization_servers).toEqual([
+      "https://api.descope.com/v1/mcp/issuer/test",
+    ]);
+  });
 });
