@@ -8,9 +8,9 @@ describe("parseDescopeProjectIdFromIssuerPath", () => {
   it("parses agentic MCP issuer path", () => {
     expect(
       parseDescopeProjectIdFromIssuerPath(
-        "/v1/apps/agentic/P32juVkF2iM8wAGoM8PiLkGi6POV/MS3AzJYzWaBYjfnSRqeb5nvM0kT84",
+        "/v1/apps/agentic/project/id",
       ),
-    ).toBe("P32juVkF2iM8wAGoM8PiLkGi6POV");
+    ).toBe("project");
   });
 
   it("parses legacy inbound issuer path", () => {
