@@ -111,7 +111,9 @@ const OPENID_CONFIGURATION_SUFFIX = "/.well-known/openid-configuration";
  * - `/v1/apps/agentic/<projectId>/...` (MCP Server)
  * - `/v1/apps/<projectId>` (legacy Inbound App issuer)
  */
-export function parseDescopeProjectIdFromIssuerPath(pathname: string): string | undefined {
+export function parseDescopeProjectIdFromIssuerPath(
+  pathname: string,
+): string | undefined {
   const segments = pathname.split("/").filter(Boolean);
 
   if (
@@ -145,10 +147,7 @@ function assertOpenIdConfigurationUrl(wellKnownUrl: URL): void {
 
 function issuerPathnameFromWellKnownUrl(wellKnownUrl: URL): string {
   assertOpenIdConfigurationUrl(wellKnownUrl);
-  return wellKnownUrl.pathname.slice(
-    0,
-    -OPENID_CONFIGURATION_SUFFIX.length,
-  );
+  return wellKnownUrl.pathname.slice(0, -OPENID_CONFIGURATION_SUFFIX.length);
 }
 
 export class DescopeMcpProvider {

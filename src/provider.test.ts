@@ -20,7 +20,9 @@ describe("parseDescopeProjectIdFromIssuerPath", () => {
   });
 
   it("returns undefined for unsupported paths", () => {
-    expect(parseDescopeProjectIdFromIssuerPath("/v1/mcp/issuer/foo")).toBeUndefined();
+    expect(
+      parseDescopeProjectIdFromIssuerPath("/v1/mcp/issuer/foo"),
+    ).toBeUndefined();
   });
 });
 
