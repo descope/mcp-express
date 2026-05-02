@@ -6,23 +6,20 @@ import {
 
 describe("parseDescopeProjectIdFromIssuerPath", () => {
   it("parses agentic MCP issuer path", () => {
-    expect(
-      parseDescopeProjectIdFromIssuerPath(
-        "/v1/apps/agentic/project/id",
-      ),
-    ).toBe("project");
+    const issuerPath = "/v1/apps/agentic/px/s";
+    expect(parseDescopeProjectIdFromIssuerPath(issuerPath)).toBe("px");
   });
 
   it("parses legacy inbound issuer path", () => {
-    expect(parseDescopeProjectIdFromIssuerPath("/v1/apps/test-project")).toBe(
+    const issuerPath = "/v1/apps/test-project";
+    expect(parseDescopeProjectIdFromIssuerPath(issuerPath)).toBe(
       "test-project",
     );
   });
 
   it("returns undefined for unsupported paths", () => {
-    expect(
-      parseDescopeProjectIdFromIssuerPath("/v1/mcp/issuer/foo"),
-    ).toBeUndefined();
+    const issuerPath = "/v1/mcp/issuer/x";
+    expect(parseDescopeProjectIdFromIssuerPath(issuerPath)).toBeUndefined();
   });
 });
 
