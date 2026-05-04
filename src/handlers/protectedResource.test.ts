@@ -41,7 +41,10 @@ describe("protectedResourceHandler", () => {
 
     expect(response.body).toEqual({
       resource: "https://mcp-server.example.com",
-      authorization_servers: ["https://api.descope.com/test-project"],
+      authorization_servers: [
+        "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
+      ],
       scopes_supported: ["openid", "profile", "email", "admin"],
       bearer_methods_supported: ["header"],
       resource_documentation: "https://docs.example.com",
@@ -90,7 +93,10 @@ describe("protectedResourceHandler", () => {
 
     expect(response.body).toEqual({
       resource: "https://mcp-server.example.com",
-      authorization_servers: ["https://api.descope.com/test-project"],
+      authorization_servers: [
+        "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
+      ],
       scopes_supported: ["openid"],
       bearer_methods_supported: ["header"],
     });

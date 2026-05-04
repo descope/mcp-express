@@ -81,6 +81,7 @@ describe("descopeMcpAuthRouter", () => {
       expect(response.body.resource).toBe("https://test.example.com");
       expect(response.body.authorization_servers).toEqual([
         "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
       ]);
     });
   });
