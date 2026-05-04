@@ -107,10 +107,16 @@ export const DescopeMcpProviderOptionsSchema = z.object({
   /** The Descope base URL for project-based endpoint construction */
   baseUrl: z.string().optional(),
 
-  /** MCP Server issuer. When provided, this overrides project/baseUrl issuer discovery. */
+  /**
+   * Inbound / MCP issuer URL. Path must be `/v1/apps/<projectId>` or
+   * `/v1/apps/agentic/<projectId>/<mcpServerId>/...` (only supported issuer shapes).
+   */
   descopeMcpServerIssuer: z.string().optional(),
 
-  /** MCP Server Discovery URL. If provided, `/.well-known/openid-configuration` is stripped to derive issuer. */
+  /**
+   * MCP discovery URL ending in `/.well-known/openid-configuration`. After stripping that suffix,
+   * the issuer path must be `/v1/apps/<projectId>` or `/v1/apps/agentic/<projectId>/<mcpServerId>/...`.
+   */
   descopeMcpServerWellKnownUrl: z.string().optional(),
 
   /** Options for dynamic client registration */

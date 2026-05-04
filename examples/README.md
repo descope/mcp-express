@@ -21,7 +21,7 @@ SERVER_URL=http://localhost:3000
 # Recommended
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
 
-# Optional (advanced)
+# Optional (advanced): issuer path must be `/v1/apps/agentic/...` or `/v1/apps/<project>`
 # DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<project>/<server>
 
 # Backward-compatible fallback

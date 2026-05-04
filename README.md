@@ -44,10 +44,10 @@ SERVER_URL=http://localhost:3000
 # Recommended: MCP Server Discovery URL
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
 
-# Optional (advanced): provide issuer directly instead of well-known URL (works with Inbound Apps as well)
+# Optional (advanced): issuer URL — path must be `/v1/apps/agentic/<project>/<mcp-server-id>` or `/v1/apps/<project>`
 # DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>
 
-# Optional: override derived values (existing setups or non-agentic issuer URLs)
+# Optional: override derived values (existing setups)
 # DESCOPE_PROJECT_ID=your_project_id
 # DESCOPE_BASE_URL=https://api.descope.com
 ```
@@ -109,8 +109,10 @@ Pro tips
 - `/mcp` requires a valid Bearer token.
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
 - Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer, project ID, and API `baseUrl` (from the URL origin) automatically.
-- `DESCOPE_PROJECT_ID` is optional when the discovery or issuer URL uses `/v1/apps/agentic/<projectId>/...` (or legacy `/v1/apps/<projectId>`). Set it explicitly if your issuer path is not one of those shapes.
+- Self-provided issuer / discovery URLs must use one of two path shapes only: **`/v1/apps/agentic/<projectId>/<mcpServerId>/...`** (MCP Server) or **`/v1/apps/<projectId>`** (Inbound App).
+- `DESCOPE_PROJECT_ID` is optional when those URLs allow deriving the project ID. Otherwise set `DESCOPE_PROJECT_ID` explicitly.
 - Backward compatibility: if neither discovery nor issuer is set, provide `DESCOPE_PROJECT_ID` (and optional `DESCOPE_BASE_URL`) as before.
+- Advertised OAuth issuer (in `/.well-known/oauth-authorization-server` and `authorization_servers`): for project-only config this stays the historical shape `https://api.descope.com/<projectId>` (via `new URL(projectId, baseUrl)`). When MCP discovery or `DESCOPE_MCP_SERVER_ISSUER` is set, the advertised issuer is the resolved MCP / Descope issuer URL instead.
 
 ## Creating Authenticated Tools
 

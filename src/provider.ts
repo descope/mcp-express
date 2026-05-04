@@ -137,6 +137,35 @@ export function parseDescopeProjectIdFromIssuerPath(
   return undefined;
 }
 
+/**
+ * Supported issuer path shapes when setting `DESCOPE_MCP_SERVER_ISSUER` or
+ * `DESCOPE_MCP_SERVER_WELL_KNOWN_URL` (issuer path after stripping `/.well-known/openid-configuration`):
+ *
+ * - MCP Server: `/v1/apps/agentic/<projectId>/<mcpServerId>` (and optional trailing segments)
+ * - Inbound App: `/v1/apps/<projectId>` (exactly; no extra path segments)
+ */
+export function isSupportedDescopeIssuerPath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments[0] !== "v1" || segments[1] !== "apps") {
+    return false;
+  }
+  if (segments[2] === "agentic") {
+    return segments.length >= 5;
+  }
+  return segments.length === 3;
+}
+
+function assertSupportedDescopeIssuerPath(
+  pathname: string,
+  envVarName: string,
+): void {
+  if (!isSupportedDescopeIssuerPath(pathname)) {
+    throw new Error(
+      `${envVarName}: issuer path must be \`/v1/apps/agentic/<projectId>/<mcpServerId>/...\` (MCP Server) or \`/v1/apps/<projectId>\` (Inbound App). Received: ${pathname}`,
+    );
+  }
+}
+
 function assertOpenIdConfigurationUrl(wellKnownUrl: URL): void {
   if (!wellKnownUrl.pathname.endsWith(OPENID_CONFIGURATION_SUFFIX)) {
     throw new Error(
@@ -181,13 +210,23 @@ export class DescopeMcpProvider {
       const wellKnown = new URL(descopeMcpServerWellKnownUrl);
       derivedBaseUrl = wellKnown.origin;
       const issuerPath = issuerPathnameFromWellKnownUrl(wellKnown);
+      assertSupportedDescopeIssuerPath(
+        issuerPath,
+        "DESCOPE_MCP_SERVER_WELL_KNOWN_URL",
+      );
       derivedProjectId = parseDescopeProjectIdFromIssuerPath(issuerPath);
     }
 
-    if (!derivedProjectId && descopeMcpServerIssuer) {
+    if (descopeMcpServerIssuer) {
       const issuer = new URL(descopeMcpServerIssuer);
+      assertSupportedDescopeIssuerPath(
+        issuer.pathname,
+        "DESCOPE_MCP_SERVER_ISSUER",
+      );
       derivedBaseUrl = derivedBaseUrl ?? issuer.origin;
-      derivedProjectId = parseDescopeProjectIdFromIssuerPath(issuer.pathname);
+      if (!derivedProjectId) {
+        derivedProjectId = parseDescopeProjectIdFromIssuerPath(issuer.pathname);
+      }
     }
 
     const resolvedProjectId = projectId ?? derivedProjectId;
@@ -289,5 +328,25 @@ export class DescopeMcpProvider {
 
   get options(): DescopeMcpProviderOptions {
     return this._options;
+  }
+
+  /**
+   * Issuer advertised in OAuth Authorization Server metadata (`/.well-known/oauth-authorization-server`)
+   * and in Protected Resource metadata (`authorization_servers`).
+   *
+   * **Legacy (project ID + base URL only):** matches historical SDK behavior —
+   * `new URL(projectId, baseUrl)` → `https://api.descope.com/<projectId>`.
+   *
+   * **When MCP discovery or explicit issuer URL is configured:** uses the resolved OAuth issuer
+   * (`descopeOAuthEndpoints.issuer`), e.g. `https://api.descope.com/v1/apps/<projectId>` or the MCP issuer URL.
+   */
+  get oauthMetadataIssuer(): string {
+    if (this.descopeMcpServerWellKnownUrl || this.descopeMcpServerIssuer) {
+      return this.descopeOAuthEndpoints.issuer.href;
+    }
+
+    const legacy = new URL(this.projectId, this.baseUrl);
+    UrlBuilder.validate(legacy);
+    return legacy.href;
   }
 }

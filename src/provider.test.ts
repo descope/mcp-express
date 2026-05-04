@@ -1,5 +1,6 @@
 import {
   DescopeMcpProvider,
+  isSupportedDescopeIssuerPath,
   parseDescopeProjectIdFromIssuerPath,
   readEnv,
 } from "./provider.js";
@@ -20,6 +21,19 @@ describe("parseDescopeProjectIdFromIssuerPath", () => {
   it("returns undefined for unsupported paths", () => {
     const issuerPath = "/v1/mcp/issuer/x";
     expect(parseDescopeProjectIdFromIssuerPath(issuerPath)).toBeUndefined();
+  });
+
+  it("detects supported issuer paths", () => {
+    expect(isSupportedDescopeIssuerPath("/v1/apps/myproject")).toBe(true);
+    expect(
+      isSupportedDescopeIssuerPath("/v1/apps/agentic/proj/srv/extra"),
+    ).toBe(true);
+    expect(isSupportedDescopeIssuerPath("/v1/apps/agentic/proj")).toBe(false);
+    expect(isSupportedDescopeIssuerPath("/v1/apps/agentic/proj/srv")).toBe(
+      true,
+    );
+    expect(isSupportedDescopeIssuerPath("/v1/apps/foo/bar")).toBe(false);
+    expect(isSupportedDescopeIssuerPath("/v1/mcp/issuer/x")).toBe(false);
   });
 });
 
@@ -140,6 +154,28 @@ describe("DescopeMcpProvider", () => {
 
       expect(provider.baseUrl).toBe("https://custom.descope.com");
     });
+
+    it("should advertise legacy OAuth metadata issuer when only project + baseUrl are used", () => {
+      const p = new DescopeMcpProvider({
+        projectId: "test-project",
+        managementKey: "test-key",
+        serverUrl: "https://test.example.com",
+      });
+      expect(p.oauthMetadataIssuer).toBe(
+        "https://api.descope.com/test-project",
+      );
+    });
+
+    it("should advertise resolved issuer when MCP well-known URL is configured", () => {
+      const p = new DescopeMcpProvider({
+        serverUrl: "https://test.example.com",
+        descopeMcpServerWellKnownUrl:
+          "https://api.descope.org/v1/apps/agentic/p1/m1/.well-known/openid-configuration",
+      });
+      expect(p.oauthMetadataIssuer).toBe(
+        "https://api.descope.org/v1/apps/agentic/p1/m1",
+      );
+    });
   });
 
   describe("OAuth endpoints", () => {
@@ -186,12 +222,24 @@ describe("DescopeMcpProvider", () => {
         projectId: "test-project",
         managementKey: "test-key",
         serverUrl: "https://test.example.com",
-        descopeMcpServerIssuer: "https://api.descope.com/v1/mcp/issuer/test",
+        descopeMcpServerIssuer:
+          "https://api.descope.com/v1/apps/agentic/test-project/mcp-id",
       });
 
       expect(issuerProvider.descopeOAuthEndpoints.issuer.toString()).toBe(
-        "https://api.descope.com/v1/mcp/issuer/test",
+        "https://api.descope.com/v1/apps/agentic/test-project/mcp-id",
       );
+    });
+
+    it("should reject unsupported DESCOPE_MCP_SERVER_ISSUER paths", () => {
+      expect(
+        () =>
+          new DescopeMcpProvider({
+            serverUrl: "https://test.example.com",
+            descopeMcpServerIssuer:
+              "https://api.descope.com/v1/mcp/issuer/not-supported",
+          }),
+      ).toThrow("DESCOPE_MCP_SERVER_ISSUER:");
     });
 
     it("should derive issuer from DESCOPE_MCP_SERVER_WELL_KNOWN_URL when provided", () => {
@@ -219,6 +267,17 @@ describe("DescopeMcpProvider", () => {
       ).toThrow(
         "DESCOPE_MCP_SERVER_WELL_KNOWN_URL must end with '/.well-known/openid-configuration'.",
       );
+    });
+
+    it("should reject incomplete agentic path in DESCOPE_MCP_SERVER_WELL_KNOWN_URL", () => {
+      expect(
+        () =>
+          new DescopeMcpProvider({
+            serverUrl: "https://test.example.com",
+            descopeMcpServerWellKnownUrl:
+              "https://api.descope.com/v1/apps/agentic/only-proj/.well-known/openid-configuration",
+          }),
+      ).toThrow("DESCOPE_MCP_SERVER_WELL_KNOWN_URL:");
     });
   });
 

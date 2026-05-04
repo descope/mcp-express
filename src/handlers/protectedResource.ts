@@ -8,7 +8,7 @@ export function protectedResourceHandler(
   provider: DescopeMcpProvider,
 ): RequestHandler {
   const serverUrl = provider.serverUrl;
-  const authorizationServer = provider.descopeOAuthEndpoints.issuer.href;
+  const authorizationServer = provider.oauthMetadataIssuer;
 
   // Build scopes from configured attribute and permission scopes
   const attributeScopes =

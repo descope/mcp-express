@@ -25,7 +25,7 @@ describe("metadataHandler", () => {
     // Check required fields
     expect(metadata).toHaveProperty(
       "issuer",
-      "https://api.descope.com/v1/apps/test-project",
+      "https://api.descope.com/test-project",
     );
     expect(metadata).toHaveProperty(
       "authorization_endpoint",
