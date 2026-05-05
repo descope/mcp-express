@@ -88,7 +88,11 @@ export const AuthorizationServerOptionsSchema = z.object({
  * Configuration options for the Descope MCP SDK.
  */
 export const DescopeMcpProviderOptionsSchema = z.object({
-  /** The Descope project ID */
+  /**
+   * Descope project ID. Optional when `descopeMcpServerWellKnownUrl` or
+   * `descopeMcpServerIssuer` uses a supported path (for example `/v1/apps/agentic/<projectId>/...`),
+   * in which case the project ID is derived from that URL.
+   */
   projectId: z.string().optional(),
 
   /** The Descope management key for administrative operations */
@@ -100,8 +104,20 @@ export const DescopeMcpProviderOptionsSchema = z.object({
    *  **/
   serverUrl: z.string().optional(),
 
-  /** The Descope base URL if a custom domain is set */
+  /** The Descope base URL for project-based endpoint construction */
   baseUrl: z.string().optional(),
+
+  /**
+   * Inbound / MCP issuer URL. Path must be `/v1/apps/<projectId>` or
+   * `/v1/apps/agentic/<projectId>/<mcpServerId>/...` (only supported issuer shapes).
+   */
+  descopeMcpServerIssuer: z.string().optional(),
+
+  /**
+   * MCP discovery URL ending in `/.well-known/openid-configuration`. After stripping that suffix,
+   * the issuer path must be `/v1/apps/<projectId>` or `/v1/apps/agentic/<projectId>/<mcpServerId>/...`.
+   */
+  descopeMcpServerWellKnownUrl: z.string().optional(),
 
   /** Options for dynamic client registration */
   dynamicClientRegistrationOptions:

@@ -8,7 +8,15 @@ export function protectedResourceHandler(
   provider: DescopeMcpProvider,
 ): RequestHandler {
   const serverUrl = provider.serverUrl;
-  const authorizationServer = provider.descopeOAuthEndpoints.issuer.href;
+  // RFC-aligned issuer first; when it differs from Descope's OAuth issuer path (legacy
+  // project-only used `.../v1/apps/<projectId>`), include both so clients that pinned
+  // the long URL keep working.
+  const advertisedIssuer = provider.oauthMetadataIssuer;
+  const descopeIssuer = provider.descopeOAuthEndpoints.issuer.href;
+  const authorization_servers =
+    advertisedIssuer === descopeIssuer
+      ? [advertisedIssuer]
+      : [advertisedIssuer, descopeIssuer];
 
   // Build scopes from configured attribute and permission scopes
   const attributeScopes =
@@ -23,7 +31,7 @@ export function protectedResourceHandler(
 
   const metadata: ProtectedResourceMetadata = {
     resource: serverUrl,
-    authorization_servers: [authorizationServer],
+    authorization_servers,
     scopes_supported,
     bearer_methods_supported: ["header"],
     resource_documentation: provider.options.serviceDocumentationUrl,

@@ -6,6 +6,7 @@ import { DescopeMcpProvider } from "../provider.js";
 // Mock the DescopeMcpProvider
 const mockProvider = {
   serverUrl: "https://mcp-server.example.com",
+  oauthMetadataIssuer: "https://api.descope.com/test-project",
   descopeOAuthEndpoints: {
     issuer: new URL("https://api.descope.com/v1/apps/test-project"),
   },
@@ -40,7 +41,10 @@ describe("protectedResourceHandler", () => {
 
     expect(response.body).toEqual({
       resource: "https://mcp-server.example.com",
-      authorization_servers: ["https://api.descope.com/v1/apps/test-project"],
+      authorization_servers: [
+        "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
+      ],
       scopes_supported: ["openid", "profile", "email", "admin"],
       bearer_methods_supported: ["header"],
       resource_documentation: "https://docs.example.com",
@@ -70,6 +74,7 @@ describe("protectedResourceHandler", () => {
   it("should work without optional configuration", async () => {
     const minimalProvider = {
       serverUrl: "https://mcp-server.example.com",
+      oauthMetadataIssuer: "https://api.descope.com/test-project",
       descopeOAuthEndpoints: {
         issuer: new URL("https://api.descope.com/v1/apps/test-project"),
       },
@@ -88,9 +93,37 @@ describe("protectedResourceHandler", () => {
 
     expect(response.body).toEqual({
       resource: "https://mcp-server.example.com",
-      authorization_servers: ["https://api.descope.com/v1/apps/test-project"],
+      authorization_servers: [
+        "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
+      ],
       scopes_supported: ["openid"],
       bearer_methods_supported: ["header"],
     });
+  });
+
+  it("should return configured MCP Server issuer when provided", async () => {
+    const issuerProvider = {
+      serverUrl: "https://mcp-server.example.com",
+      oauthMetadataIssuer: "https://api.descope.com/v1/apps/agentic/project/id",
+      descopeOAuthEndpoints: {
+        issuer: new URL("https://api.descope.com/v1/apps/agentic/project/id"),
+      },
+      options: {},
+    } as DescopeMcpProvider;
+
+    const issuerApp = express();
+    issuerApp.use(
+      "/.well-known/oauth-protected-resource",
+      protectedResourceHandler(issuerProvider),
+    );
+
+    const response = await request(issuerApp)
+      .get("/.well-known/oauth-protected-resource")
+      .expect(200);
+
+    expect(response.body.authorization_servers).toEqual([
+      "https://api.descope.com/v1/apps/agentic/project/id",
+    ]);
   });
 });

@@ -60,7 +60,7 @@ describe("descopeMcpAuthRouter", () => {
       );
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("issuer");
+      expect(response.body.issuer).toBe("https://api.descope.com/test-project");
       expect(response.body).toHaveProperty("authorization_endpoint");
       expect(response.body).toHaveProperty("token_endpoint");
       expect(response.body).toHaveProperty("revocation_endpoint");
@@ -79,6 +79,10 @@ describe("descopeMcpAuthRouter", () => {
       expect(response.body).toHaveProperty("scopes_supported");
       expect(response.body).toHaveProperty("bearer_methods_supported");
       expect(response.body.resource).toBe("https://test.example.com");
+      expect(response.body.authorization_servers).toEqual([
+        "https://api.descope.com/test-project",
+        "https://api.descope.com/v1/apps/test-project",
+      ]);
     });
   });
 

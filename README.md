@@ -35,11 +35,21 @@ npm install @descope/mcp-express
 
 ## Quick Start
 
+> Before you get started, you must create an [MCP Server](https://app.descope.com/agentic-hub/mcp-servers) in the Descope Console and get the Discovery URL of your new server.
+
 1. Create `.env`
 
 ```bash
-DESCOPE_PROJECT_ID=your_project_id
 SERVER_URL=http://localhost:3000
+# Recommended: MCP Server Discovery URL
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
+
+# Optional (advanced): issuer URL — path must be `/v1/apps/agentic/<project>/<mcp-server-id>` or `/v1/apps/<project>`
+# DESCOPE_MCP_SERVER_ISSUER=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>
+
+# Optional: override derived values (existing setups)
+# DESCOPE_PROJECT_ID=your_project_id
+# DESCOPE_BASE_URL=https://api.descope.com
 ```
 
 2. Minimal server
@@ -56,9 +66,12 @@ app.use(express.json());
 
 // Optional: explicit provider config (env work out of the box)
 const provider = new DescopeMcpProvider({
-  projectId: process.env.DESCOPE_PROJECT_ID,
   serverUrl: process.env.SERVER_URL,
-  baseUrl: process.env.DESCOPE_BASE_URL, // optional
+  descopeMcpServerWellKnownUrl: process.env.DESCOPE_MCP_SERVER_WELL_KNOWN_URL,
+
+  // Backward-compatible fallback:
+  projectId: process.env.DESCOPE_PROJECT_ID,
+  baseUrl: process.env.DESCOPE_BASE_URL,
 });
 
 // Define an authenticated tool (requires 'openid')
@@ -95,6 +108,11 @@ Pro tips
 - Send `Content-Type: application/json` to `/mcp`.
 - `/mcp` requires a valid Bearer token.
 - Metadata endpoints are always on. The `/mcp` handler is wired only when you pass a `toolRegistration` function.
+- Recommended config is `DESCOPE_MCP_SERVER_WELL_KNOWN_URL`; the SDK derives issuer, project ID, and API `baseUrl` (from the URL origin) automatically.
+- Self-provided issuer / discovery URLs must use one of two path shapes only: **`/v1/apps/agentic/<projectId>/<mcpServerId>/...`** (MCP Server) or **`/v1/apps/<projectId>`** (Inbound App).
+- `DESCOPE_PROJECT_ID` is optional when those URLs allow deriving the project ID. Otherwise set `DESCOPE_PROJECT_ID` explicitly.
+- Backward compatibility: if neither discovery nor issuer is set, provide `DESCOPE_PROJECT_ID` (and optional `DESCOPE_BASE_URL`) as before.
+- Advertised OAuth issuer (in `/.well-known/oauth-authorization-server` and `authorization_servers`): for project-only config this stays the historical shape `https://api.descope.com/<projectId>` (via `new URL(projectId, baseUrl)`). When MCP discovery or `DESCOPE_MCP_SERVER_ISSUER` is set, the advertised issuer is the resolved MCP / Descope issuer URL instead.
 
 ## Creating Authenticated Tools
 
@@ -216,9 +234,8 @@ Requirements
 Example .env
 
 ```bash
-DESCOPE_PROJECT_ID=your_project_id
+DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
 SERVER_URL=http://localhost:3000
-DESCOPE_MANAGEMENT_KEY=your_management_key
 ```
 
 Configuration example
