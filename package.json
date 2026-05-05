@@ -37,14 +37,14 @@
   "license": "MIT",
   "dependencies": {
     "@descope/node-sdk": "^2.5.0",
-    "@modelcontextprotocol/sdk": "^1.15.1",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "express": "4.22.1",
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@eslint/js": "^9.24.0",
-    "@eslint/json": "^1.0.0",
-    "@eslint/plugin-kit": "^0.7.0",
+    "@eslint/js": "^9.39.4",
+    "@eslint/json": "^1.2.0",
+    "@eslint/plugin-kit": "^0.7.1",
     "@jest/globals": "^30.0.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
@@ -53,22 +53,22 @@
     "@types/node": "^22.13.13",
     "@types/superagent": "^8.1.9",
     "@types/supertest": "^7.0.0",
-    "concurrently": "^9.1.2",
+    "concurrently": "^9.2.1",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
-    "eslint": "^9.32.0",
+    "eslint": "^9.39.4",
     "express-rate-limit": "8.3.2",
     "globals": "^17.0.0",
-    "jest": "^30.0.0",
+    "jest": "^30.3.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.2.5",
-    "semantic-release": "^25.0.0",
+    "semantic-release": "^25.0.3",
     "shx": "^0.4.0",
     "supertest": "^7.1.0",
-    "ts-jest": "^29.3.1",
+    "ts-jest": "^29.4.9",
+    "tsx": "^4.19.0",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.29.1",
-    "tsx": "^4.19.0"
+    "typescript-eslint": "^8.59.2"
   },
   "engines": {
     "node": ">=18"
@@ -79,7 +79,17 @@
   },
   "pnpm": {
     "overrides": {
-      "form-data": ">=4.0.4"
+      "brace-expansion@<1.1.13": ">=1.1.13",
+      "diff": ">=4.0.4",
+      "flatted": ">=3.4.2",
+      "form-data": ">=4.0.4",
+      "glob@>=10.2.0 <10.5.0": ">=10.5.0",
+      "handlebars": ">=4.7.9",
+      "js-yaml": ">=4.1.1",
+      "minimatch@<3.1.4": ">=3.1.4",
+      "picomatch@<2.3.2": ">=2.3.2",
+      "picomatch@>=4 <4.0.4": ">=4.0.4",
+      "qs": ">=6.14.2"
     }
   }
 }
