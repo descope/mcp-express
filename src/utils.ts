@@ -212,7 +212,7 @@ export function registerAuthenticatedTool(
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return server.registerTool(name, config, wrapped as any);
+    return (server as any).registerTool(name, config as any, wrapped as any);
   };
 }
 
