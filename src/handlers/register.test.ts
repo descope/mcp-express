@@ -65,7 +65,7 @@ describe("registrationHandler", () => {
 
       const clientInfo = response.body;
       expect(clientInfo).toHaveProperty("client_id", "test-client-id");
-      expect(clientInfo).toHaveProperty("client_secret", "test-secret");
+      expect(clientInfo).toHaveProperty("cleartext", "cleartext");
       expect(clientInfo).toHaveProperty(
         "client_name",
         validClientMetadata.client_name,
@@ -89,7 +89,7 @@ describe("registrationHandler", () => {
       );
     });
 
-    it("should not include client_secret when cleartext is absent", async () => {
+    it("should not include client secret when cleartext field is absent", async () => {
       mockFetch.mockReset();
 
       // Create response without cleartext
@@ -112,7 +112,7 @@ describe("registrationHandler", () => {
         .send(validClientMetadata)
         .expect(201);
 
-      expect(response.body).not.toHaveProperty("client_secret");
+      expect(response.body).not.toHaveProperty("cleartext");
     });
   });
 
