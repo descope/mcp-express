@@ -65,6 +65,7 @@ describe("registrationHandler", () => {
 
       const clientInfo = response.body;
       expect(clientInfo).toHaveProperty("client_id", "test-client-id");
+      expect(clientInfo).toHaveProperty("client_secret", "test-secret");
       expect(clientInfo).toHaveProperty(
         "client_name",
         validClientMetadata.client_name,
@@ -86,6 +87,32 @@ describe("registrationHandler", () => {
       expect(mockFetch.mock.calls[1][0]).toBe(
         "https://api.descope.com/v1/mgmt/thirdparty/app/load?id=test-app-id",
       );
+    });
+
+    it("should not include client_secret when cleartext is absent", async () => {
+      mockFetch.mockReset();
+
+      // Create response without cleartext
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ id: "test-app-id" }),
+        }),
+      );
+
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ clientId: "test-client-id" }),
+        }),
+      );
+
+      const response = await request(app)
+        .post("/")
+        .send(validClientMetadata)
+        .expect(201);
+
+      expect(response.body).not.toHaveProperty("client_secret");
     });
   });
 
