@@ -133,7 +133,7 @@ async function registerClient(
   const createAppResponseJson =
     (await createAppResponse.json()) as CreateAppResponse;
   const appId = createAppResponseJson.id;
-  const cleartext = createAppResponseJson.cleartext || undefined;
+  const client_secret = createAppResponseJson.cleartext || undefined;
 
   const loadAppResponse = await fetch(
     `${provider.baseUrl}/v1/mgmt/thirdparty/app/load?id=${appId}`,
@@ -163,7 +163,7 @@ async function registerClient(
 
   return OAuthClientInformationFullSchema.parse({
     client_id,
-    cleartext,
+    client_secret,
     ...client,
   });
 }
