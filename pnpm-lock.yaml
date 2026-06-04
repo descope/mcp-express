@@ -82,8 +82,8 @@ importers:
         specifier: ^9.39.4
         version: 9.39.4
       express-rate-limit:
-        specifier: 8.5.1
-        version: 8.5.1(express@4.22.2)
+        specifier: 8.5.2
+        version: 8.5.2(express@4.22.2)
       globals:
         specifier: ^17.0.0
         version: 17.0.0
@@ -1658,8 +1658,8 @@ packages:
     resolution: {integrity: sha512-1zQrciTiQfRdo7qJM1uG4navm8DayFa2TgCSRlzUyNkhcJ6XUZF3hjnpkyr3VhAqPH7i/9GkG7Tv5abz6fqz0Q==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  express-rate-limit@8.5.1:
-    resolution: {integrity: sha512-5O6KYmyJEpuPJV5hNTXKbAHWRqrzyu+OI3vUnSd2kXFubIVpG7ezpgxQy76Zo5GQZtrQBg86hF+CM/NX+cioiQ==}
+  express-rate-limit@8.5.2:
+    resolution: {integrity: sha512-5Kb34ipNX694DH48vN9irak1Qx30nb0PLYHXfJgw4YEjiC3ZEmZJhwOp+VfiCYwFzvFTdB9QkArYS5kXa2cx2A==}
     engines: {node: '>= 16'}
     peerDependencies:
       express: '>= 4.11'
@@ -3947,7 +3947,7 @@ snapshots:
       eventsource: 3.0.7
       eventsource-parser: 3.0.3
       express: 5.2.1
-      express-rate-limit: 8.5.1(express@5.2.1)
+      express-rate-limit: 8.5.2(express@5.2.1)
       hono: 4.12.23
       jose: 6.2.3
       json-schema-typed: 8.0.2
@@ -4896,12 +4896,12 @@ snapshots:
       jest-mock: 30.3.0
       jest-util: 30.3.0
 
-  express-rate-limit@8.5.1(express@4.22.2):
+  express-rate-limit@8.5.2(express@4.22.2):
     dependencies:
       express: 4.22.2
       ip-address: 10.2.0
 
-  express-rate-limit@8.5.1(express@5.2.1):
+  express-rate-limit@8.5.2(express@5.2.1):
     dependencies:
       express: 5.2.1
       ip-address: 10.2.0
