@@ -260,7 +260,7 @@ const provider = new DescopeMcpProvider({
       { name: "get-schema", description: "Allow getting the SQL schema" },
       { name: "run-query", description: "Allow executing a SQL query", required: false },
     ],
-    clientType: "public",
+    clientType: "public", // formerly nonConfidentialClient: true (deprecated)
   },
 });
 ```

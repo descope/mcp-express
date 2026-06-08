@@ -110,7 +110,11 @@ async function registerClient(
             }),
           ),
         clientType:
-          provider.options.dynamicClientRegistrationOptions?.clientType,
+          provider.options.dynamicClientRegistrationOptions?.clientType ??
+          (provider.options.dynamicClientRegistrationOptions
+            ?.nonConfidentialClient === true
+            ? "public"
+            : undefined),
       }),
     },
   );

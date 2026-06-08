@@ -66,6 +66,9 @@ export const DynamicClientRegistrationOptionsSchema = z.object({
   /** Logo for the client */
   logo: z.string().optional(),
 
+  /** @deprecated use clientType: "public" instead */
+  nonConfidentialClient: z.boolean().optional(),
+
   /** The client type (e.g. "public", "confidential") */
   clientType: z.string().optional(),
 });
