@@ -238,7 +238,9 @@ DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<proje
 SERVER_URL=http://localhost:3000
 ```
 
-Configuration example
+Configuration examples
+
+Non-confidential client (no `client_secret` returned)
 
 ```typescript
 import { DescopeMcpProvider } from "@descope/mcp-express";
@@ -258,7 +260,31 @@ const provider = new DescopeMcpProvider({
       { name: "get-schema", description: "Allow getting the SQL schema" },
       { name: "run-query", description: "Allow executing a SQL query", required: false },
     ],
-    nonConfidentialClient: true,
+    clientType: "public", // formerly nonConfidentialClient: true (deprecated)
+  },
+});
+```
+
+Confidential client (`client_secret` returned at registration)
+
+```typescript
+import { DescopeMcpProvider } from "@descope/mcp-express";
+
+const provider = new DescopeMcpProvider({
+  projectId: process.env.DESCOPE_PROJECT_ID,
+  serverUrl: process.env.SERVER_URL,
+  authorizationServerOptions: {
+    isDisabled: false,
+    enableAuthorizeEndpoint: true,
+    enableDynamicClientRegistration: true,
+  },
+  dynamicClientRegistrationOptions: {
+    authPageUrl: `https://api.descope.com/login/${process.env.DESCOPE_PROJECT_ID}?flow=consent`,
+    permissionScopes: [
+      { name: "get-schema", description: "Allow getting the SQL schema" },
+      { name: "run-query", description: "Allow executing a SQL query", required: false },
+    ],
+    clientType: "confidential", // Descope issues a client_secret — store it securely
   },
 });
 ```
@@ -266,6 +292,7 @@ const provider = new DescopeMcpProvider({
 Notes
 
 - Dynamic Client Registration is a sub-feature of Legacy Authorization Server mode and is disabled by default. Only set `enableDynamicClientRegistration: true` and provide `dynamicClientRegistrationOptions` if you want to expose `/register`.
+- The `/register` response includes `client_secret` when Descope returns one (per [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591)). Store it securely — it is only returned at registration time.
 
 ### Verify Token Options
 
