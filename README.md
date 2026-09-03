@@ -194,7 +194,7 @@ There isn’t anything you can do with one that you can’t do with the other. P
 
 MCP 2025‑06‑18 compliant Resource Server.
 
-- Protected Resource Metadata (RFC 8705)
+- Protected Resource Metadata (RFC 9728)
 - Authorization Server Metadata (RFC 8414)
 - `/mcp` endpoint with bearer token authentication
 - Resource Indicator support (RFC 8707)
@@ -209,7 +209,7 @@ Optional (Authorization Server)
 
 Resource Server (always enabled)
 
-- RFC 8705: OAuth 2.0 Protected Resource Metadata
+- RFC 9728: OAuth 2.0 Protected Resource Metadata
 - RFC 8414: OAuth 2.0 Authorization Server Metadata
 - RFC 8707: Resource Indicators for OAuth 2.0
 
