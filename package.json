@@ -33,6 +33,14 @@
     "mcp",
     "modelcontextprotocol"
   ],
+  "homepage": "https://github.com/descope/mcp-express#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/descope/mcp-express.git"
+  },
+  "bugs": {
+    "url": "https://github.com/descope/mcp-express/issues"
+  },
   "author": "Descope (https://descope.com)",
   "license": "MIT",
   "dependencies": {
