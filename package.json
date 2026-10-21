@@ -55,7 +55,7 @@
     "@types/supertest": "^7.0.0",
     "concurrently": "^10.0.0",
     "cors": "2.8.6",
-    "dotenv": "18.0.4",
+    "dotenv": "18.0.5",
     "eslint": "^9.39.4",
     "express-rate-limit": "8.7.0",
     "globals": "^17.0.0",
