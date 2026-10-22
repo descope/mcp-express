@@ -70,7 +70,7 @@
     "typescript-eslint": "^8.59.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": "24.x"
   },
   "packageManager": "pnpm@10.34.1",
   "publishConfig": {
