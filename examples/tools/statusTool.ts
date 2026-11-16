@@ -8,7 +8,6 @@ export const statusTool = defineTool({
   name: "status",
   description:
     "Get the current server status, user information, and outbound token availability",
-  scopes: ["openid"], // Basic authentication required
   handler: async (extra) => {
     // Attempt to fetch an outbound token for an example app id
     // Replace "example-app" and scopes with your configured outbound application details in Descope

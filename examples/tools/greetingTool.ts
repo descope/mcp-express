@@ -16,7 +16,6 @@ export const greetingTool = defineTool({
       .describe("Include current time in greeting")
       .optional(),
   },
-  scopes: ["openid"], // Basic authentication required
   handler: async (args, extra) => {
     const name = args.name || "there";
     const currentTime = args.includeTime ? new Date().toLocaleString() : null;

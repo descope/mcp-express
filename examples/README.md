@@ -16,7 +16,7 @@ Configure your Descope project:
 
 ```bash
 # Required
-SERVER_URL=http://localhost:3000
+SERVER_URL=http://localhost:3000/mcp
 
 # Recommended
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration

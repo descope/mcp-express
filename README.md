@@ -40,7 +40,8 @@ npm install @descope/mcp-express
 1. Create `.env`
 
 ```bash
-SERVER_URL=http://localhost:3000
+# Full MCP endpoint, including /mcp. Must match the MCP server URL configured in Descope.
+SERVER_URL=http://localhost:3000/mcp
 # Recommended: MCP Server Discovery URL
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<mcp-server-id>/.well-known/openid-configuration
 
@@ -74,14 +75,13 @@ const provider = new DescopeMcpProvider({
   baseUrl: process.env.DESCOPE_BASE_URL,
 });
 
-// Define an authenticated tool (requires 'openid')
+// Define an authenticated tool. With no scopes, any signed-in user can call it.
 const hello = defineTool({
   name: "hello",
   description: "Say hello to the authenticated user",
   input: {
     name: z.string().describe("Name to greet").optional(),
   },
-  scopes: ["openid"],
   handler: async (args, extra) => {
     const result = {
       message: `Hello ${args.name || "there"}!`,
@@ -160,18 +160,13 @@ const getUser = registerAuthenticatedTool(
 - Without input
 
 ```typescript
-const whoami = registerAuthenticatedTool(
-  "whoami",
-  { description: "Return authenticated identity info" },
-  async (extra) => {
-    const result = {
-      clientId: extra.authInfo.clientId,
-      scopes: extra.authInfo.scopes || [],
-    };
-    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-  },
-  ["openid"],
-);
+const whoami = registerAuthenticatedTool("whoami", { description: "Return authenticated identity info" }, async (extra) => {
+  const result = {
+    clientId: extra.authInfo.clientId,
+    scopes: extra.authInfo.scopes || [],
+  };
+  return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+});
 ```
 
 ## Which API should I use?
@@ -235,7 +230,7 @@ Example .env
 
 ```bash
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
-SERVER_URL=http://localhost:3000
+SERVER_URL=http://localhost:3000/mcp
 ```
 
 Configuration examples
@@ -335,7 +330,6 @@ server.registerTool("whoami", { description: "Return identity" }, async (_args, 
 const whoami = defineTool({
   name: "whoami",
   description: "Return identity",
-  scopes: ["openid"],
   handler: async (extra) => {
     const data = { ok: true };
     return { content: [{ type: "text", text: JSON.stringify(data) }] };
@@ -352,15 +346,10 @@ app.use(
 - After (registerAuthenticatedTool, without input):
 
 ```typescript
-const whoami = registerAuthenticatedTool(
-  "whoami",
-  { description: "Return identity" },
-  async (extra) => {
-    const data = { ok: true };
-    return { content: [{ type: "text", text: JSON.stringify(data) }] };
-  },
-  ["openid"],
-);
+const whoami = registerAuthenticatedTool("whoami", { description: "Return identity" }, async (extra) => {
+  const data = { ok: true };
+  return { content: [{ type: "text", text: JSON.stringify(data) }] };
+});
 ```
 
 3. Remove custom wiring
