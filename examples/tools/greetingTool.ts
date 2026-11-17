@@ -2,7 +2,7 @@ import { defineTool } from "@descope/mcp-express";
 import { z } from "zod";
 
 /**
- * Simple greeting tool that demonstrates basic authentication and scope validation
+ * Simple greeting tool that any signed-in user can call (no scopes required)
  * using the new defineTool function for better ergonomics
  */
 export const greetingTool = defineTool({

@@ -55,7 +55,7 @@ The server will start on `http://localhost:3000` with:
 The example includes a simple **greeting tool** that demonstrates:
 
 - ✅ Authenticated tool registration
-- ✅ Scope validation (`openid` required)
+- ✅ Sign-in check with no scopes required (to require a scope, see `get_user` in the [main README](../README.md))
 - ✅ User context access
 
 ## Usage
