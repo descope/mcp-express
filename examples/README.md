@@ -16,7 +16,7 @@ Configure your Descope project:
 
 ```bash
 # Required
-SERVER_URL=http://localhost:3000
+SERVER_URL=http://localhost:3000/mcp
 
 # Recommended
 DESCOPE_MCP_SERVER_WELL_KNOWN_URL=https://api.descope.com/v1/apps/agentic/<project>/<server>/.well-known/openid-configuration
@@ -55,7 +55,7 @@ The server will start on `http://localhost:3000` with:
 The example includes a simple **greeting tool** that demonstrates:
 
 - ✅ Authenticated tool registration
-- ✅ Scope validation (`openid` required)
+- ✅ Sign-in check with no scopes required (to require a scope, see `get_user` in the [main README](../README.md))
 - ✅ User context access
 
 ## Usage

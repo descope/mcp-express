@@ -2,7 +2,7 @@ import { defineTool } from "@descope/mcp-express";
 import { z } from "zod";
 
 /**
- * Simple greeting tool that demonstrates basic authentication and scope validation
+ * Simple greeting tool that any signed-in user can call (no scopes required)
  * using the new defineTool function for better ergonomics
  */
 export const greetingTool = defineTool({
@@ -16,7 +16,6 @@ export const greetingTool = defineTool({
       .describe("Include current time in greeting")
       .optional(),
   },
-  scopes: ["openid"], // Basic authentication required
   handler: async (args, extra) => {
     const name = args.name || "there";
     const currentTime = args.includeTime ? new Date().toLocaleString() : null;
