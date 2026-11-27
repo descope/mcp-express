@@ -37,7 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "@descope/node-sdk": "^2.5.0",
-    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "express": "4.22.3",
     "zod": "4.6.7"
   },
